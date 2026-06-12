@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #FAF8F2;
+    color: #1A1A1A;
+    font-family: 'Inter', 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+  }
+}
+
+/* Custom premium scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF8F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #C8A24A;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FAF8F2;
+  border: 2px solid #C8A24A;
+}
+
+/* Glassmorphism utility */
+.glass-premium {
+  background: rgba(250, 248, 242, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-dark {
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Luxury transitions */
+.transition-luxury {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Fine border gold details */
+.border-gold-fine {
+  border: 1px solid rgba(200, 162, 74, 0.25);
+}
+
+.border-gold-focus:focus {
+  border-color: #C8A24A;
+  outline: none;
+}
