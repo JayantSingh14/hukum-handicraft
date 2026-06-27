@@ -56,10 +56,8 @@ public class AuthServiceImpl implements AuthService {
     private final CartRepository cartRepository;
     private final RestTemplate restTemplate;
 
-
     @Override
     public void sentLoginOtp(String email) throws UserException, MessagingException {
-
 
         String SIGNING_PREFIX = "signing_";
 
@@ -122,12 +120,10 @@ public class AuthServiceImpl implements AuthService {
             cartRepository.save(cart);
         }
 
-
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         authorities.add(new SimpleGrantedAuthority(
                 USER_ROLE.ROLE_CUSTOMER.toString()));
-
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 email, null, authorities);
@@ -154,9 +150,7 @@ public class AuthServiceImpl implements AuthService {
         authResponse.setJwt(token);
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-
         String roleName = authorities.isEmpty() ? null : authorities.iterator().next().getAuthority();
-
 
         authResponse.setRole(USER_ROLE.valueOf(roleName));
 
@@ -170,8 +164,6 @@ public class AuthServiceImpl implements AuthService {
         return authResponse;
 
     }
-
-
 
     private Authentication authenticate(String username, String otp) throws UserException {
         UserDetails userDetails = customUserDetails.loadUserByUsername(username);
@@ -220,8 +212,10 @@ public class AuthServiceImpl implements AuthService {
             // Verify the audience (aud) matches our client ID
             String aud = (String) tokenInfo.get("aud");
             if (aud == null || !aud.equals(googleClientId)) {
-                System.out.println("[GoogleLogin] Audience mismatch! Token aud=" + aud + ", expected=" + googleClientId);
-                throw new UserException("Google token audience mismatch. Expected: " + googleClientId + ", got: " + aud);
+                System.out
+                        .println("[GoogleLogin] Audience mismatch! Token aud=" + aud + ", expected=" + googleClientId);
+                throw new UserException(
+                        "Google token audience mismatch. Expected: " + googleClientId + ", got: " + aud);
             }
 
             // Check for error field in response

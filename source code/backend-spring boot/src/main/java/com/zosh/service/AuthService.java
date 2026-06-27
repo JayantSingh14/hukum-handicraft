@@ -1,12 +1,9 @@
 package com.zosh.service;
 
 import com.zosh.exception.UserException;
-import com.zosh.exception.UserException;
 import com.zosh.request.GoogleLoginRequest;
 import com.zosh.request.LoginRequest;
-import com.zosh.request.ResetPasswordRequest;
 import com.zosh.request.SignupRequest;
-import com.zosh.response.ApiResponse;
 import com.zosh.response.AuthResponse;
 import jakarta.mail.MessagingException;
 
@@ -16,5 +13,4 @@ public interface AuthService {
     String createUser(SignupRequest req) throws UserException;
     AuthResponse signin(LoginRequest req) throws UserException;
     AuthResponse googleLogin(GoogleLoginRequest req) throws UserException;
-
 }

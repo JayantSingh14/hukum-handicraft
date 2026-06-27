@@ -137,8 +137,14 @@ const Cart = () => {
                 <PricingCard />
                 <div className="px-5 pb-5">
                   <button
-                    onClick={() => navigate("/checkout/address")}
-                    className="w-full py-3.5 bg-matte-black text-brand-gold font-sans text-xs tracking-[0.2em] uppercase font-semibold hover:bg-brand-gold hover:text-matte-black transition-all duration-300"
+                    onClick={() => {
+                      if (!localStorage.getItem("jwt")) {
+                        navigate("/login", { state: { from: "/checkout/address" } });
+                      } else {
+                        navigate("/checkout/address");
+                      }
+                    }}
+                    className="w-full py-3.5 bg-matte-black text-brand-gold font-sans text-xs tracking-[0.2em] uppercase font-semibold hover:bg-brand-gold hover:text-matte-black transition-all duration-300 cursor-pointer"
                   >
                     Proceed to Checkout
                   </button>

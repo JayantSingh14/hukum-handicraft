@@ -32,14 +32,16 @@ export function useSmoothScroll() {
     // Keep GSAP ScrollTrigger in sync with Lenis
     lenis.on("scroll", ScrollTrigger.update);
 
-    // Drive Lenis via GSAP's RAF ticker for perfect frame sync
-    gsap.ticker.add((time) => {
+    const updateLenis = (time: number) => {
       lenis.raf(time * 1000);
-    });
+    };
+
+    // Drive Lenis via GSAP's RAF ticker for perfect frame sync
+    gsap.ticker.add(updateLenis);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
-      gsap.ticker.remove((time) => lenis.raf(time * 1000));
+      gsap.ticker.remove(updateLenis);
       lenis.destroy();
       lenisInstance = null;
     };

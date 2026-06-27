@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import PricingCard from '../Cart/PricingCard'
 import { Alert, Box, FormControlLabel, Modal, Radio, RadioGroup, Snackbar } from '@mui/material'
 import AddressForm from './AddresssForm'
@@ -18,8 +19,16 @@ const paymentGatwayList = [
 ]
 
 const AddressPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useAppDispatch();
     const { user, orders } = useAppSelector(store => store)
+
+    useEffect(() => {
+        if (!localStorage.getItem("jwt")) {
+            navigate("/login", { state: { from: location.pathname } });
+        }
+    }, [navigate, location.pathname]);
     const [value, setValue] = useState(0);
     const [paymentGateway, setPaymentGateway] = useState(paymentGatwayList[0].value);
     const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -152,7 +161,7 @@ const AddressPage = () => {
                                             )}
                                         </div>
                                     }
-                                    className={`border w-[45%] justify-center rounded-none pr-2 transition-all duration-150 ${
+                                    className={`border w-full sm:w-[48%] md:w-[31%] justify-center rounded-none pr-2 transition-all duration-150 ${
                                         paymentGateway === item.value
                                             ? "border-brand-gold bg-brand-gold/5"
                                             : "border-charcoal/10"

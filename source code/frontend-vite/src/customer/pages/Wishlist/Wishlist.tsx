@@ -1,7 +1,17 @@
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../../Redux Toolkit/Store'
 import WishlistProductCard from './WishlistProductCard';
 
 const Wishlist = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (!localStorage.getItem("jwt")) {
+            navigate("/login", { state: { from: location.pathname } });
+        }
+    }, [navigate, location.pathname]);
     const { wishlist } = useAppSelector(store => store)
 
     return (

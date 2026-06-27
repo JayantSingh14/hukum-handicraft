@@ -19,7 +19,7 @@ const initialState: AuthState = {
     role: null,
     loading: false,
     error: null,
-    otpSent:false
+    otpSent: false
 };
 
 // Define the base URL for the API
@@ -30,11 +30,16 @@ export const sendLoginSignupOtp = createAsyncThunk<ApiResponse, { email: string 
     async ({ email }, { rejectWithValue }) => {
         try {
             const response = await api.post(`${API_URL}/sent/login-signup-otp`, { email });
-            console.log("otp sent successfully",response.data);
+            console.log("otp sent successfully", response.data);
             return response.data;
-        } catch (error:any) {
-            console.log("error",error.response)
-            return rejectWithValue(error.response.data.error||'Failed to send OTP');
+        } catch (error: any) {
+            console.log("otp send error", error.response);
+            const msg =
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                (typeof error.response?.data === 'string' ? error.response.data : null) ||
+                'Failed to send OTP. Please try again.';
+            return rejectWithValue(msg);
         }
     }
 );
@@ -44,13 +49,17 @@ export const signup = createAsyncThunk<AuthResponse, SignupRequest>(
     async (signupRequest, { rejectWithValue }) => {
         console.log("signup ", signupRequest)
         try {
-            
             const response = await api.post<AuthResponse>(`${API_URL}/signup`, signupRequest);
-           signupRequest.navigate("/")
-           localStorage.setItem("jwt",response.data.jwt)
+            signupRequest.navigate(signupRequest.from || "/")
+            localStorage.setItem("jwt", response.data.jwt)
             return response.data;
-        } catch (error:any) {
-            return rejectWithValue('Signup failed');
+        } catch (error: any) {
+            const msg =
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                (typeof error.response?.data === 'string' ? error.response.data : null) ||
+                'Signup failed. Please verify your OTP and try again.';
+            return rejectWithValue(msg);
         }
     }
 );
@@ -60,25 +69,30 @@ export const signin = createAsyncThunk<AuthResponse, LoginRequest>(
     async (loginRequest, { rejectWithValue }) => {
         try {
             const response = await api.post<AuthResponse>(`${API_URL}/signin`, loginRequest);
-           console.log("login successful", response.data)
-           localStorage.setItem("jwt",response.data.jwt)
-           loginRequest.navigate("/");
+            console.log("login successful", response.data);
+            localStorage.setItem("jwt", response.data.jwt);
+            loginRequest.navigate(loginRequest.from || "/");
             return response.data;
-        } catch (error:any) {
-            console.log("error ", error.response)
-            return rejectWithValue('Signin failed');
+        } catch (error: any) {
+            console.log("signin error", error.response);
+            const msg =
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                (typeof error.response?.data === 'string' ? error.response.data : null) ||
+                'Login failed. Please check your OTP and try again.';
+            return rejectWithValue(msg);
         }
     }
 );
 
-export const loginWithGoogle = createAsyncThunk<AuthResponse, { idToken: string; navigate: any }>(
+export const loginWithGoogle = createAsyncThunk<AuthResponse, { idToken: string; navigate: any; from?: string }>(
     'auth/loginWithGoogle',
-    async ({ idToken, navigate }, { rejectWithValue }) => {
+    async ({ idToken, navigate, from }, { rejectWithValue }) => {
         try {
             const response = await api.post<AuthResponse>(`${API_URL}/google`, { idToken });
             console.log("google login successful", response.data);
             localStorage.setItem("jwt", response.data.jwt);
-            navigate("/");
+            navigate(from || "/");
             return response.data;
         } catch (error: any) {
             console.error("google login error", error.response);
@@ -98,7 +112,7 @@ export const resetPassword = createAsyncThunk<ApiResponse, ResetPasswordRequest>
         try {
             const response = await api.post<ApiResponse>(`${API_URL}/reset-password`, resetPasswordRequest);
             return response.data;
-        } catch (error:any) {
+        } catch (error: any) {
             return rejectWithValue('Reset password failed');
         }
     }
@@ -110,7 +124,7 @@ export const resetPasswordRequest = createAsyncThunk<ApiResponse, { email: strin
         try {
             const response = await api.post<ApiResponse>(`${API_URL}/reset-password-request`, { email });
             return response.data;
-        } catch (error:any) {
+        } catch (error: any) {
             return rejectWithValue('Reset password request failed');
         }
     }
@@ -123,7 +137,15 @@ const authSlice = createSlice({
         logout: (state) => {
             state.jwt = null;
             state.role = null;
-            localStorage.clear()
+            localStorage.clear();
+        },
+        resetOtpState: (state) => {
+            state.otpSent = false;
+            state.error = null;
+            state.loading = false;
+        },
+        setAuthError: (state, action) => {
+            state.error = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -204,7 +226,7 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, resetOtpState, setAuthError } = authSlice.actions;
 
 export default authSlice.reducer;
 

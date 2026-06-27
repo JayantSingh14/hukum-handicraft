@@ -12,6 +12,8 @@ import {
     IconButton,
     Snackbar,
     Alert,
+    FormControlLabel,
+    Checkbox,
 } from "@mui/material";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CloseIcon from "@mui/icons-material/Close";
@@ -35,6 +37,7 @@ interface FormValues {
     numRatings: number;
     in_stock: boolean;
     personalized: boolean;
+    featured: boolean;
 }
 const UpdateProductForm = () => {
     const [uploadImage, setUploadingImage] = useState(false);
@@ -58,6 +61,7 @@ const UpdateProductForm = () => {
             numRatings: 0,
             in_stock: true,
             personalized: false,
+            featured: false,
         },
         // validationSchema: validationSchema,
         onSubmit: (values) => {
@@ -108,6 +112,7 @@ const UpdateProductForm = () => {
             numRatings: products.product?.numRatings || 0,
             in_stock: products.product?.in_stock || true,
             personalized: products.product?.personalized || false,
+            featured: products.product?.featured || false,
 
         })
     }, [products.product])
@@ -236,6 +241,32 @@ const UpdateProductForm = () => {
                                 ))}
                             </Select>
                         </FormControl>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    name="personalized"
+                                    checked={formik.values.personalized}
+                                    onChange={formik.handleChange}
+                                />
+                            }
+                            label="Supports personalization (photo + message)"
+                        />
+                    </Grid>
+
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    name="featured"
+                                    checked={formik.values.featured}
+                                    onChange={formik.handleChange}
+                                />
+                            }
+                            label="Mark as Bestselling Masterpiece (Featured)"
+                        />
                     </Grid>
                   
                

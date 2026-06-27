@@ -32,6 +32,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<Page<Product>> getAllProducts(
+            @RequestParam(required = false) String query,
             @RequestParam(required = false) String giftCategory,
             @RequestParam(required = false) Long occasionId,
             @RequestParam(required = false) Long recipientId,
@@ -41,10 +42,18 @@ public class ProductController {
             @RequestParam(required = false) Integer minDiscount,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String stock,
+            @RequestParam(required = false) String material,
             @RequestParam(defaultValue = "0") Integer pageNumber) {
         return new ResponseEntity<>(
-                productService.getAllProduct(giftCategory, occasionId, recipientId, personalized,
-                        minPrice, maxPrice, minDiscount, sort, stock, pageNumber),
+                productService.getAllProduct(query, giftCategory, occasionId, recipientId, personalized,
+                        minPrice, maxPrice, minDiscount, sort, stock, material, pageNumber),
                 HttpStatus.OK);
+    }
+
+    /** Lightweight endpoint for homepage bestsellers — only featured products, max 12 */
+    @GetMapping("/featured")
+    public ResponseEntity<List<Product>> getFeaturedProducts() {
+        List<Product> featured = productService.getFeaturedProducts();
+        return new ResponseEntity<>(featured, HttpStatus.OK);
     }
 }

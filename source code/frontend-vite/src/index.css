@@ -64,3 +64,9 @@
   border-color: #C8A24A;
   outline: none;
 }
+
+/* Offscreen deferred rendering for performance optimization */
+.lazy-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}

@@ -8,6 +8,7 @@ import AdminAuth from "./admin/pages/Auth/AdminAuth";
 import { useAppDispatch, useAppSelector } from "./Redux Toolkit/Store";
 import { useEffect } from "react";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
+import ScrollToTop from "./hooks/ScrollToTop";
 import { fetchUserProfile } from "./Redux Toolkit/Customer/UserSlice";
 import { createHomeCategories } from "./Redux Toolkit/Customer/Customer/AsyncThunk";
 import { homeCategories } from "./data/homeCategories";
@@ -37,6 +38,7 @@ function App() {
   return (
     <ThemeProvider theme={customeTheme}>
       <div className="App">
+        <ScrollToTop />
         <Routes>
           {user.user?.role === "ROLE_ADMIN" && (
             <Route path="/admin/*" element={<AdminDashboard />} />

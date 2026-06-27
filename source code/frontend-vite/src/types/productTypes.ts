@@ -34,4 +34,5 @@ export interface Product {
   personalized?: boolean;
   createdAt?: Date;
   in_stock?: boolean;
+  featured?: boolean;
 }

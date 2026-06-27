@@ -24,11 +24,11 @@ const WishlistProductCard: React.FC<ProductCardProps> = ({ item }) => {
     return (
         <div 
             onClick={() => navigate(`/product-details/${item.giftCategory?.toLowerCase() || "gifts"}/${item.title}/${item.id}`)}
-            className='w-60 relative group cursor-pointer bg-transparent'
+            className='w-full sm:w-60 relative group cursor-pointer bg-transparent'
         >
             <div className="w-full overflow-hidden border border-[#C8A24A]/10">
                 <img
-                    className="object-cover object-top w-full h-[320px] group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover object-top w-full h-[200px] sm:h-[320px] group-hover:scale-105 transition-transform duration-500"
                     src={item.images[0]}
                     alt={`product-${item.title}`}
                 />

@@ -22,7 +22,7 @@ const Reviews = () => {
 
     return (
         <div className='p-5 lg:p-20 flex flex-col lg:flex-row gap-12'>
-            <section className='w-full md:w-1/2 lg:w-[30%] space-y-4'>
+            <section className='w-full lg:w-[30%] space-y-4'>
                 <div className='border border-[#C8A24A]/15 overflow-hidden'>
                     <img className='w-full object-cover' src={products.product?.images[0]} alt={products.product?.title} />
                 </div>
@@ -37,7 +37,7 @@ const Reviews = () => {
                 </div>
             </section>
 
-            <section className="w-full md:w-1/2 lg:w-[70%] space-y-8">
+            <section className="w-full lg:w-[70%] space-y-8">
                 <div>
                     <span className="text-[10px] tracking-[0.3em] font-sans font-bold text-brand-gold uppercase block mb-1">Customer Voices</span>
                     <h1 className="font-serif text-3xl font-semibold text-matte-black uppercase tracking-wide">Reviews & Ratings</h1>

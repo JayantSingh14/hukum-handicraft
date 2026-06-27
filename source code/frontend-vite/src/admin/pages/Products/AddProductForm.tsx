@@ -44,6 +44,7 @@ const ProductForm = () => {
       giftCategory: "" as GiftCategory | "",
       occasionId: "",
       personalized: false,
+      featured: false,
       quantity: 50,
     },
     onSubmit: (values) => {
@@ -183,6 +184,19 @@ const ProductForm = () => {
                 />
               }
               label="Supports personalization (photo + message)"
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="featured"
+                  checked={formik.values.featured}
+                  onChange={formik.handleChange}
+                />
+              }
+              label="Mark as Bestselling Masterpiece (Featured)"
             />
           </Grid>
 

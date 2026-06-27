@@ -86,7 +86,7 @@ const menu = [
 const menu2 = [
   {
     name: "Logout",
-    path: "/admin-login",
+    path: "/",
     icon: <LogoutIcon className="text-primary-color" />,
     activeIcon: <LogoutIcon className="text-white" />,
   },

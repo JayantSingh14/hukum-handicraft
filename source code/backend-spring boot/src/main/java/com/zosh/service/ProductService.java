@@ -20,7 +20,8 @@ public interface ProductService {
 
     List<Product> searchProduct(String query);
 
-    Page<Product> getAllProduct(String giftCategory,
+    Page<Product> getAllProduct(String query,
+                                String giftCategory,
                                 Long occasionId,
                                 Long recipientId,
                                 Boolean personalized,
@@ -29,6 +30,7 @@ public interface ProductService {
                                 Integer minDiscount,
                                 String sort,
                                 String stock,
+                                String material,
                                 Integer pageNumber);
 
     List<Product> recentlyAddedProduct();
@@ -42,4 +44,6 @@ public interface ProductService {
     Product disableProduct(Long productId) throws ProductException;
 
     Product toggleFeatured(Long productId) throws ProductException;
+
+    List<Product> getFeaturedProducts();
 }

@@ -75,6 +75,9 @@ public class DataSeeder implements CommandLineRunner {
             new HomeCategory(null, "Personalized Luxury",
                 "https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=800&q=80",
                 "personalized", HomeCategorySection.GRID),
+            new HomeCategory(null, "Luxury Gift Hampers",
+                "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&q=80",
+                "luxury_hampers", HomeCategorySection.GRID),
 
             // ── SHOP_BY_CATEGORIES (Circular category cards on home page) ────
             new HomeCategory(null, "Wall Art & Hangings",

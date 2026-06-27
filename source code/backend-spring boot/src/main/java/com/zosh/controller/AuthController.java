@@ -1,6 +1,5 @@
 package com.zosh.controller;
 
-
 import com.zosh.domain.USER_ROLE;
 import com.zosh.exception.UserException;
 import com.zosh.model.*;
@@ -24,9 +23,7 @@ import com.zosh.request.LoginRequest;
 import com.zosh.response.ApiResponse;
 import com.zosh.response.AuthResponse;
 
-
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/auth")
@@ -34,7 +31,6 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
-
 
     @PostMapping("/sent/login-signup-otp")
     public ResponseEntity<ApiResponse> sentLoginOtp(
@@ -49,10 +45,8 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(
-            @Valid
-            @RequestBody SignupRequest req)
+            @Valid @RequestBody SignupRequest req)
             throws UserException {
-
 
         String token = authService.createUser(req);
         AuthResponse authResponse = new AuthResponse();
@@ -76,8 +70,5 @@ public class AuthController {
         AuthResponse authResponse = authService.googleLogin(req);
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
-
-
-
 
 }

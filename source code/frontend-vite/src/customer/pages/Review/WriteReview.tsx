@@ -18,7 +18,7 @@ const WriteReviews = () => {
 
     return (
         <div className="p-5 lg:p-20 flex flex-col lg:flex-row gap-12 bg-ivory min-h-screen">
-            <div className="w-full md:w-1/2 lg:w-[30%] space-y-4">
+            <div className="w-full lg:w-[30%] space-y-4">
                 <div className="border border-brand-gold/15 bg-white p-2">
                     <img className="w-full object-cover" src={products.product?.images[0]} alt="" />
                 </div>
@@ -35,7 +35,7 @@ const WriteReviews = () => {
                 </div>
             </div>
 
-            <section className="w-full md:w-1/2 lg:w-[70%] space-y-6">
+            <section className="w-full lg:w-[70%] space-y-6">
                 <div>
                     <span className="text-[10px] tracking-[0.3em] font-sans font-bold text-brand-gold uppercase block mb-1">
                         Share Your Thoughts

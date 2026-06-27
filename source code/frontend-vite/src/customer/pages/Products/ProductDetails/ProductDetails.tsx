@@ -22,7 +22,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SmilarProduct from "../SimilarProduct/SmilarProduct";
 import ZoomableImage from "./ZoomableImage";
 import { useAppDispatch, useAppSelector } from "../../../../Redux Toolkit/Store";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { fetchProductById, getAllProducts } from "../../../../Redux Toolkit/Customer/ProductSlice";
 import { addItemToCart, fetchUserCart } from "../../../../Redux Toolkit/Customer/CartSlice";
 import ProductReviewCard from "../../Review/ProductReviewCard";
@@ -38,10 +38,12 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "auto",
-  height: "100%",
+  width: "95%",
+  maxWidth: "800px",
+  maxHeight: "90vh",
   boxShadow: 24,
   outline: "none",
+  bgcolor: "transparent",
 };
 
 const ProductDetails = () => {
@@ -49,6 +51,7 @@ const ProductDetails = () => {
   const dispatch = useAppDispatch();
   const { products, review } = useAppSelector((store) => store);
   const navigate = useNavigate();
+  const location = useLocation();
   const { productId, categoryId } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -84,7 +87,7 @@ const ProductDetails = () => {
       setSnackbarMessage("Please login to add items to your bag");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
-      navigate("/login");
+      navigate("/login", { state: { from: location.pathname } });
       return;
     }
 
@@ -153,12 +156,12 @@ const ProductDetails = () => {
       </Snackbar>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <section className="flex flex-col lg:flex-row gap-5">
-          <div className="w-full lg:w-[15%] flex flex-wrap lg:flex-col gap-3">
+          <div className="w-full lg:w-[15%] flex flex-row overflow-x-auto lg:flex-col gap-3 scrollbar-none pb-2">
             {product?.images.map((item, index) => (
               <img
                 key={index}
                 onClick={() => setSelectedImage(index)}
-                className="lg:w-full w-[50px] cursor-pointer rounded-md"
+                className="w-[50px] h-[60px] object-cover cursor-pointer rounded-md border border-brand-gold/10 shrink-0"
                 src={item}
                 alt=""
               />
@@ -277,7 +280,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          <div className="mt-12 flex items-center gap-5">
+          <div className="mt-12 flex flex-col sm:flex-row items-center gap-3">
             <Button onClick={handleAddCart} sx={{ py: "1rem" }} variant="contained" fullWidth startIcon={<AddShoppingCartIcon />}>
               Add To Bag
             </Button>

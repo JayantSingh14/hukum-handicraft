@@ -1,8 +1,21 @@
 
-
-
   .card {
-    @apply relative w-[250px]  h-[350px] overflow-hidden;
+    @apply relative w-full sm:w-[250px] h-[220px] sm:h-[350px] overflow-hidden;
+    /* shimmer background shown while images are loading */
+    background: linear-gradient(90deg, #ede8df 25%, #f5f1ea 50%, #ede8df 75%);
+    background-size: 600px 100%;
+    animation: card-shimmer 1.4s infinite linear;
+  }
+
+  @keyframes card-shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position:  600px 0; }
+  }
+
+  /* once at least one image has loaded, stop the shimmer */
+  .card.loaded {
+    background: none;
+    animation: none;
   }
  
   .card-media {
@@ -11,9 +24,16 @@
     left: 0;
     width: 100%;
     height: 100%;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 0.5s ease-in-out, opacity 0.3s ease;
     cursor: pointer;
     object-fit: cover;
+    /* start invisible; fade in on load */
+    opacity: 0;
+  }
+
+  /* applied via onLoad handler */
+  .card-media.img-loaded {
+    opacity: 1;
   }
   
   .indicator {

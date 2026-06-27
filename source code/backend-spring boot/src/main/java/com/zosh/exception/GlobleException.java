@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -89,16 +91,40 @@ public class GlobleException {
 
 
 
+	@ExceptionHandler(BadCredentialsException.class)
+	public ResponseEntity<ErrorDetails> handleBadCredentialsException(BadCredentialsException ex, WebRequest req) {
+		ErrorDetails err = new ErrorDetails(
+			"Invalid credentials. Please check your OTP and try again.",
+			req.getDescription(false),
+			LocalDateTime.now()
+		);
+		return new ResponseEntity<>(err, HttpStatus.UNAUTHORIZED);
+	}
+
+	@ExceptionHandler(UsernameNotFoundException.class)
+	public ResponseEntity<ErrorDetails> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest req) {
+		ErrorDetails err = new ErrorDetails(
+			ex.getMessage(),
+			req.getDescription(false),
+			LocalDateTime.now()
+		);
+		return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+	}
+
 	@ExceptionHandler(RuntimeException.class)
-	public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
-		return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+	public ResponseEntity<ErrorDetails> handleRuntimeException(RuntimeException ex, WebRequest req) {
+		ErrorDetails err = new ErrorDetails(
+			ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred",
+			req.getDescription(false),
+			LocalDateTime.now()
+		);
+		return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorDetails> otherExceptionHandler(Exception e, WebRequest req){
-		ErrorDetails error=new ErrorDetails(e.getMessage(),req.getDescription(false),LocalDateTime.now());
-		
-		return new ResponseEntity<ErrorDetails>(error,HttpStatus.ACCEPTED);
+		ErrorDetails error = new ErrorDetails(e.getMessage(), req.getDescription(false), LocalDateTime.now());
+		return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }

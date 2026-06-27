@@ -11,7 +11,7 @@ const SimilarProductCard = ({ product }: any) => {
             )} 
             className='group cursor-pointer'
         >
-            <div className="relative h-[300px] overflow-hidden border border-[#C8A24A]/10">
+            <div className="relative h-[200px] sm:h-[300px] overflow-hidden border border-[#C8A24A]/10">
                 <img
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                     src={product.images[0]}

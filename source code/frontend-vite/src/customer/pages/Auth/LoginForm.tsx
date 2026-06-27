@@ -4,61 +4,74 @@ import { useEffect, useState } from 'react'
 import OTPInput from '../../components/OtpFild/OTPInput'
 import { useFormik } from 'formik';
 import { useAppDispatch, useAppSelector } from '../../../Redux Toolkit/Store';
-import { useNavigate } from 'react-router-dom';
-import { sendLoginSignupOtp, signin, loginWithGoogle } from '../../../Redux Toolkit/Customer/AuthSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { sendLoginSignupOtp, signin, loginWithGoogle, setAuthError } from '../../../Redux Toolkit/Customer/AuthSlice';
 import { GoogleLogin } from '@react-oauth/google';
 
 const fieldSx = {
-  "& .MuiOutlinedInput-root": {
-    borderRadius: 0,
-    fontSize: "0.8rem",
-    "& fieldset": { borderColor: "rgba(200,162,74,0.25)" },
-    "&:hover fieldset": { borderColor: "#C8A24A" },
-    "&.Mui-focused fieldset": { borderColor: "#C8A24A" },
-  },
-  "& .MuiInputLabel-root.Mui-focused": { color: "#C8A24A" },
+    "& .MuiOutlinedInput-root": {
+        borderRadius: 0,
+        fontSize: "0.8rem",
+        "& fieldset": { borderColor: "rgba(200,162,74,0.25)" },
+        "&:hover fieldset": { borderColor: "#C8A24A" },
+        "&.Mui-focused fieldset": { borderColor: "#C8A24A" },
+    },
+    "& .MuiInputLabel-root.Mui-focused": { color: "#C8A24A" },
 };
 
-const LoginForm = () => {
+interface LoginFormProps {
+    onGoogleError?: (msg?: string) => void;
+}
+
+const LoginForm = ({ onGoogleError }: LoginFormProps) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [otp, setOtp] = useState("");
-    const [timer, setTimer] = useState<number>(30); // Timer state
+    const [timer, setTimer] = useState<number>(30);
     const [isTimerActive, setIsTimerActive] = useState<boolean>(false);
     const dispatch = useAppDispatch();
-    const { auth } = useAppSelector(store => store)
+    const { auth } = useAppSelector(store => store);
 
     const formik = useFormik({
-        initialValues: {
-            email: '',
-            otp: ''
-        },
+        initialValues: { email: '' },
         onSubmit: (values: any) => {
-            dispatch(signin({ email: values.email, otp, navigate }))
+            if (!otp || otp.length < 6) {
+                dispatch(setAuthError('Please enter the 6-digit OTP sent to your email.'));
+                return;
+            }
+            const from = location.state?.from || "/";
+            dispatch(signin({ email: values.email, otp, navigate, from }));
         }
     });
 
-    const handleOtpChange = (otp: any) => {
-        setOtp(otp);
-    };
+    const handleOtpChange = (val: any) => setOtp(val);
 
     const handleResendOTP = () => {
-        dispatch(sendLoginSignupOtp({ email: "signing_" + formik.values.email }))
+        dispatch(sendLoginSignupOtp({ email: "signing_" + formik.values.email }));
         setTimer(30);
         setIsTimerActive(true);
     };
 
     const handleSentOtp = () => {
+        if (!formik.values.email) {
+            dispatch(setAuthError('Please enter your email address.'));
+            return;
+        }
         handleResendOTP();
-    }
+    };
 
-    const handleLogin = () => {
-        formik.handleSubmit()
-    }
+    const handleLogin = () => formik.handleSubmit();
 
     const handleGoogleSuccess = (credentialResponse: any) => {
         if (credentialResponse.credential) {
-            dispatch(loginWithGoogle({ idToken: credentialResponse.credential, navigate }));
+            const from = location.state?.from || "/";
+            dispatch(loginWithGoogle({ idToken: credentialResponse.credential, navigate, from }));
         }
+    };
+
+    const handleGoogleError = () => {
+        const msg = 'Google Sign-In failed. Make sure pop-ups are allowed and try again.';
+        if (onGoogleError) onGoogleError(msg);
     };
 
     useEffect(() => {
@@ -69,15 +82,13 @@ const LoginForm = () => {
                     if (prev === 1) {
                         clearInterval(interval);
                         setIsTimerActive(false);
-                        return 30; // Reset timer for next OTP request
-                     }
+                        return 30;
+                    }
                     return prev - 1;
                 });
             }, 1000);
         }
-        return () => {
-            if (interval) clearInterval(interval);
-        };
+        return () => { if (interval) clearInterval(interval); };
     }, [isTimerActive]);
 
     return (
@@ -87,7 +98,7 @@ const LoginForm = () => {
                     Login to HUKUM
                 </h1>
                 <p className="font-sans text-[11px] text-charcoal/50 uppercase tracking-widest mt-1">
-                    Enter your email to verify account via OTP
+                    Enter your email to receive a one-time passcode
                 </p>
             </div>
 
@@ -103,26 +114,23 @@ const LoginForm = () => {
                     error={formik.touched.email && Boolean(formik.errors.email)}
                     helperText={formik.touched.email ? formik.errors.email as string : undefined}
                     sx={fieldSx}
+                    disabled={auth.otpSent}
                 />
 
                 {auth.otpSent && (
                     <div className="space-y-4 pt-2">
                         <p className="font-sans text-[11px] text-brand-gold uppercase tracking-wider font-semibold">
-                            * Enter OTP sent to your email
+                            ✦ OTP sent to {formik.values.email}
                         </p>
                         <div className="flex justify-center">
-                            <OTPInput
-                                length={6}
-                                onChange={handleOtpChange}
-                                error={false}
-                            />
+                            <OTPInput length={6} onChange={handleOtpChange} error={false} />
                         </div>
                         <p className="text-xs space-x-2 font-sans text-charcoal/60">
                             {isTimerActive ? (
-                                <span>Resend OTP in {timer} seconds</span>
+                                <span>Resend OTP in {timer}s</span>
                             ) : (
                                 <>
-                                    Didn't receive OTP?{" "}
+                                    Didn&apos;t receive OTP?{" "}
                                     <span
                                         onClick={handleResendOTP}
                                         className="text-brand-gold cursor-pointer hover:opacity-75 font-semibold"
@@ -132,29 +140,24 @@ const LoginForm = () => {
                                 </>
                             )}
                         </p>
-                        {formik.touched.otp && formik.errors.otp && (
-                            <p className="text-red-500 text-xs">{formik.errors.otp as string}</p>
-                        )}
                     </div>
                 )}
 
-                {auth.otpSent && (
+                {auth.otpSent ? (
                     <button
                         type="button"
                         disabled={auth.loading}
                         onClick={handleLogin}
-                        className="w-full py-3 bg-matte-black text-brand-gold font-sans text-xs tracking-[0.2em] uppercase font-semibold hover:bg-brand-gold hover:text-matte-black transition-all duration-200"
+                        className="w-full py-3 border border-brand-gold text-brand-gold bg-transparent font-sans text-xs tracking-[0.2em] uppercase font-semibold hover:bg-brand-gold hover:text-matte-black transition-all duration-200 disabled:opacity-50"
                     >
                         {auth.loading ? <CircularProgress size={18} sx={{ color: '#C8A24A' }} /> : "Login"}
                     </button>
-                )}
-
-                {!auth.otpSent && (
+                ) : (
                     <button
                         type="button"
                         disabled={auth.loading}
                         onClick={handleSentOtp}
-                        className="w-full py-3 bg-matte-black text-brand-gold font-sans text-xs tracking-[0.2em] uppercase font-semibold hover:bg-brand-gold hover:text-matte-black transition-all duration-200"
+                        className="w-full py-3 border border-brand-gold text-brand-gold bg-transparent font-sans text-xs tracking-[0.2em] uppercase font-semibold hover:bg-brand-gold hover:text-matte-black transition-all duration-200 disabled:opacity-50"
                     >
                         {auth.loading ? <CircularProgress size={18} sx={{ color: '#C8A24A' }} /> : "Send OTP"}
                     </button>
@@ -169,7 +172,7 @@ const LoginForm = () => {
                 <div className="flex justify-center w-full">
                     <GoogleLogin
                         onSuccess={handleGoogleSuccess}
-                        onError={() => console.error("Google Login Failed")}
+                        onError={handleGoogleError}
                         theme="outline"
                         size="large"
                         width="100%"
@@ -178,7 +181,7 @@ const LoginForm = () => {
                 </div>
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default LoginForm
+export default LoginForm;

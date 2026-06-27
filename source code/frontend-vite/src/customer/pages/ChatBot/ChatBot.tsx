@@ -37,8 +37,8 @@ const ChatBot = ({ handleClose, productId }: ChatBotProps) => {
     }, [aiChatBot.messages]);
 
     return (
-        <div className="rounded-lg">
-            <div className="w-full lg:w-[40vw] h-[82vh] shadow-2xl bg-white z-50 rounded-lg">
+        <div className="rounded-lg h-full">
+            <div className="w-full md:w-[400px] h-full md:h-[600px] shadow-2xl bg-white z-50 rounded-lg">
                 <div className=" h-[12%] flex justify-between items-center px-5 bg-slate-100 rounded-t-lg">
                     <div className="flex items-center gap-3 ">
                         <h1 className="logo">HUKUM</h1>

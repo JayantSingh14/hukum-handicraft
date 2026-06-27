@@ -77,8 +77,10 @@ const ZoomableImage: React.FC<ZoomableImageProps> = ({ src, alt }) => {
         src={src}
         alt={alt}
         style={{
-          width: isZoomed ? '200%' : '200%',
+          width: isZoomed ? '200%' : '100%',
           height: isZoomed ? '200%' : 'auto',
+          maxHeight: isZoomed ? 'none' : '80vh',
+          objectFit: 'contain',
           transform: `translate(${offset.x}px, ${offset.y}px)`,
           transition: isDragging ? 'none' : 'transform 0.3s',
           userSelect: 'none',

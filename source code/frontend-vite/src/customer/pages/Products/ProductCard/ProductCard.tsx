@@ -25,18 +25,29 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: "auto",
+    width: "90%",
+    maxWidth: "400px",
     borderRadius: ".5rem",
     boxShadow: 24,
+    outline: "none",
 };
 
 const ProductCard: React.FC<ProductCardProps> = ({ item }) => {
     const [currentImage, setCurrentImage] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
+    // Track which images have finished loading for shimmer fade-in
+    const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
     const { wishlist } = useAppSelector((store) => store);
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [showChatBot, setShowChatBot] = useState(false);
+
+    const handleImageLoad = (index: number) => {
+        setLoadedImages(prev => ({ ...prev, [index]: true }));
+    };
+
+    // card is considered "loaded" once at least one image has resolved
+    const isCardLoaded = Object.keys(loadedImages).length > 0;
 
     const handleAddWishlist = (event: MouseEvent) => {
         event.stopPropagation();
@@ -75,10 +86,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ item }) => {
                         `/product-details/${item.giftCategory?.toLowerCase() || "gifts"}/${item.title}/${item.id}`
                     )
                 }
-                className="group px-4 relative cursor-pointer"
+                className="group px-1 sm:px-4 relative cursor-pointer"
             >
                 <div
-                    className="card border border-[#C8A24A]/10 overflow-hidden"
+                    className={`card border border-[#C8A24A]/10 overflow-hidden relative${isCardLoaded ? ' loaded' : ''}`}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => {
                         setIsHovered(false);
@@ -88,14 +99,42 @@ const ProductCard: React.FC<ProductCardProps> = ({ item }) => {
                     {item.images.map((image: any, index: number) => (
                         <img
                             key={index}
-                            className="card-media object-top"
+                            className={`card-media object-top${loadedImages[index] ? ' img-loaded' : ''}`}
                             src={image}
                             alt={`product-${index}`}
+                            loading="lazy"
+                            onLoad={() => handleImageLoad(index)}
                             style={{
                                 transform: `translateX(${(index - currentImage) * 100}%)`,
                             }}
                         />
                     ))}
+                    {/* Always visible Wishlist Button overlay */}
+                    {wishlist.wishlist && (
+                        <IconButton
+                            onClick={handleAddWishlist}
+                            className="absolute top-3 right-3 z-30 transition-all duration-200"
+                            sx={{
+                                bgcolor: "rgba(250, 248, 242, 0.95)",
+                                color: isWishlisted(wishlist.wishlist, item) ? "#C8A24A" : "#1A1A1A",
+                                border: "1px solid rgba(200, 162, 74, 0.3)",
+                                backdropFilter: "blur(4px)",
+                                p: 1,
+                                "&:hover": {
+                                    bgcolor: "#0F0F0F",
+                                    color: "#FAF8F2",
+                                    borderColor: "#0F0F0F",
+                                }
+                            }}
+                        >
+                            {isWishlisted(wishlist.wishlist, item) ? (
+                                <FavoriteIcon sx={{ fontSize: 16 }} />
+                            ) : (
+                                <FavoriteBorderIcon sx={{ fontSize: 16 }} />
+                            )}
+                        </IconButton>
+                    )}
+
                     {isHovered && (
                         <div className="indicator flex flex-col items-center space-y-3">
                             <div className="flex gap-2 bg-matte-black/40 px-2 py-1 rounded-full backdrop-blur-sm">
@@ -113,30 +152,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ item }) => {
                             </div>
 
                             <div className="flex gap-3">
-                                {wishlist.wishlist && (
-                                    <IconButton
-                                        sx={{
-                                            bgcolor: "rgba(250, 248, 242, 0.95)",
-                                            color: isWishlisted(wishlist.wishlist, item) ? "#C8A24A" : "#1A1A1A",
-                                            border: "1px solid rgba(200, 162, 74, 0.3)",
-                                            backdropFilter: "blur(4px)",
-                                            p: 1,
-                                            "&:hover": {
-                                                bgcolor: "#0F0F0F",
-                                                color: "#FAF8F2",
-                                                borderColor: "#0F0F0F",
-                                            }
-                                        }}
-                                        className="z-50"
-                                        onClick={handleAddWishlist}
-                                    >
-                                        {isWishlisted(wishlist.wishlist, item) ? (
-                                            <FavoriteIcon sx={{ fontSize: 18 }} />
-                                        ) : (
-                                            <FavoriteBorderIcon sx={{ fontSize: 18 }} />
-                                        )}
-                                    </IconButton>
-                                )}
                                 <IconButton 
                                     onClick={handleShowChatBot} 
                                     sx={{
@@ -163,7 +178,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item }) => {
                         <h1 className="font-serif text-xs font-semibold tracking-widest text-brand-gold uppercase">{STORE_NAME}</h1>
                         <p className="text-charcoal font-sans text-xs tracking-wider line-clamp-1">{item.title}</p>
                     </div>
-                    <div className="price flex items-center gap-3 font-sans text-xs tracking-wider">
+                    <div className="price flex flex-wrap items-center gap-x-2 gap-y-0.5 font-sans text-xs tracking-wider">
                         <span className="font-semibold text-charcoal">
                             ₹{item.sellingPrice}
                         </span>

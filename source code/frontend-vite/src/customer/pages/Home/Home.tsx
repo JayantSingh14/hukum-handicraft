@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import HomeCategory from "./HomeCategory/HomeCategory";
-import TopBrand from "./TopBrands/Grid";
+import BestSellers from "./BestSellers/BestSellers";
+import LuxuryShowcase from "./TopBrands/LuxuryShowcase";
 import ElectronicCategory from "./Electronic Category/ElectronicCategory";
+import LuxuryMarquee from "./LuxuryMarquee/LuxuryMarquee";
+import CategoryDiscovery from "./CategoryDiscovery/CategoryDiscovery";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import { Backdrop, Button, CircularProgress, Divider, TextField } from "@mui/material";
 import ChatBot from "../ChatBot/ChatBot";
 import { useAppDispatch, useAppSelector } from "../../../Redux Toolkit/Store";
-import DealSlider from "./Deals/Deals";
 import { useNavigate } from "react-router-dom";
 import { STORE_NAME } from "../../../util/storeConfig";
 import { motion } from "framer-motion";
@@ -51,53 +52,53 @@ const Home = () => {
   useEffect(() => {
     if (homePage.loading) return;
 
-    const ctx = gsap.context(() => {
-      // Reveal every [data-reveal] section as it enters viewport
-      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 60 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 88%",
-              toggleActions: "play none none none",
-            },
-          }
-        );
-      });
+    let ctx: any;
+    const timer = setTimeout(() => {
+      ctx = gsap.context(() => {
+        // Reveal every [data-reveal] section as it enters viewport
+        gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: 60 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 1,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 88%",
+                toggleActions: "play none none none",
+              },
+            }
+          );
+        });
+      }, pageRef);
 
-      // Parallax on the hero video
-      gsap.to(".hero-video", {
-        yPercent: 20,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".hero-section",
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-    }, pageRef);
+      // Force recalculation of scroll coordinates
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+    }, 150);
 
-    return () => ctx.revert();
+    return () => {
+      clearTimeout(timer);
+      if (ctx) ctx.revert();
+    };
   }, [homePage.loading]);
 
   return (
     <>
       {!homePage.loading ? (
-        <div ref={pageRef} className="space-y-16 lg:space-y-24 relative bg-[#FAF8F2] text-[#1A1A1A] overflow-hidden pb-12">
+        <div ref={pageRef} className="space-y-8 lg:space-y-12 relative bg-[#FAF8F2] text-[#1A1A1A] overflow-hidden pb-12">
 
-          {/* 1. Hero Section */}
-          <section className="hero-section relative h-[65vh] lg:h-[85vh] w-full overflow-hidden bg-matte-black flex items-center justify-center">
+          {/* 1. Hero Section & Marquee Visual Bridge */}
+          <div>
+            <section className="hero-section relative h-[65vh] lg:h-[85vh] w-full overflow-hidden bg-matte-black flex items-center justify-center">
             <motion.div
-              initial={{ scale: 1.08, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
               className="absolute inset-0"
             >
               <video
@@ -146,7 +147,7 @@ const Home = () => {
                 className="pt-6 flex flex-col sm:flex-row gap-4 justify-center"
               >
                 <Button
-                  onClick={() => navigate("/products/wall_art")}
+                  onClick={() => navigate("/products")}
                   variant="contained"
                   sx={{
                     bgcolor: "#C8A24A",
@@ -186,9 +187,15 @@ const Home = () => {
               </motion.div>
             </div>
           </section>
+          {/* Luxury Marquee Visual Bridge */}
+          <LuxuryMarquee />
+        </div>
+
+        {/* 2. Premium Category Discovery Experience */}
+        <CategoryDiscovery grid={homePage.homePageData?.grid} />
 
           {/* 2. Horizontal Quick Categories Band */}
-          {homePage.homePageData?.electricCategories && (
+          {homePage.homePageData?.electricCategories && homePage.homePageData.electricCategories.length > 0 && (
             <motion.section
               data-reveal
               initial={{ opacity: 0, y: 20 }}
@@ -201,56 +208,20 @@ const Home = () => {
             </motion.section>
           )}
 
-          {/* 3. Featured Lookbook Grid */}
-          {homePage.homePageData?.grid && (
-            <section data-reveal className="px-5 lg:px-20 space-y-8">
-              <div className="text-center max-w-2xl mx-auto space-y-2">
-                <span className="text-[10px] tracking-[0.3em] font-sans font-bold text-brand-gold uppercase">
-                  Artisanal Curations
-                </span>
-                <h2 className="font-serif text-3xl lg:text-5xl font-semibold uppercase tracking-wide">
-                  Featured Showcases
-                </h2>
-                <div className="h-[1px] w-24 bg-brand-gold mx-auto mt-4" />
-              </div>
-              <TopBrand />
-            </section>
-          )}
+          {/* 3. Featured Collections Slider */}
+          <section data-reveal>
+            <LuxuryShowcase grid={homePage.homePageData?.grid} />
+          </section>
 
-          {/* 4. Best Sellers / Deals Carousel */}
-          {homePage.homePageData?.deals && (
-            <section data-reveal className="px-5 lg:px-20 py-8 bg-[#FAF8F2] border-y border-[#C8A24A]/10">
-              <div className="text-center max-w-2xl mx-auto space-y-2 pb-10">
-                <span className="text-[10px] tracking-[0.3em] font-sans font-bold text-brand-gold uppercase">
-                  Bespoke Offers
-                </span>
-                <h2 className="font-serif text-3xl lg:text-5xl font-semibold uppercase tracking-wide">
-                  Today&apos;s Signature Deals
-                </h2>
-                <div className="h-[1px] w-24 bg-brand-gold mx-auto mt-4" />
-              </div>
-              <DealSlider />
-            </section>
-          )}
 
-          {/* 5. Shop By Occasion Circles */}
-          {homePage.homePageData?.shopByCategories && (
-            <section data-reveal className="flex flex-col justify-center items-center py-10 px-5 lg:px-20 space-y-12">
-              <div className="text-center max-w-2xl mx-auto space-y-2">
-                <span className="text-[10px] tracking-[0.3em] font-sans font-bold text-brand-gold uppercase">
-                  Timeless Celebrations
-                </span>
-                <h2 className="font-serif text-3xl lg:text-5xl font-semibold uppercase tracking-wide">
-                  Shop By Occasion
-                </h2>
-                <div className="h-[1px] w-24 bg-brand-gold mx-auto mt-4" />
-              </div>
-              <HomeCategory />
-            </section>
-          )}
+
+          {/* 5. Bestselling Masterpieces Showcase */}
+          <section data-reveal>
+            <BestSellers />
+          </section>
 
           {/* 6. Editorial Artisan Story Section */}
-          <section data-reveal className="px-5 lg:px-20 py-16 bg-white border-y border-[#C8A24A]/10">
+          <section data-reveal className="lazy-section px-5 lg:px-20 py-16 bg-white border-y border-[#C8A24A]/10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="relative h-[300px] lg:h-[500px] border border-[#C8A24A]/20 p-3">
                 <img
@@ -277,7 +248,7 @@ const Home = () => {
                 </p>
                 <div className="pt-4">
                   <Button
-                    onClick={() => navigate("/products/wall_art")}
+                    onClick={() => navigate("/products")}
                     variant="outlined"
                     sx={{
                       borderColor: "#0F0F0F",
@@ -301,7 +272,7 @@ const Home = () => {
           </section>
 
           {/* 7. Why Choose HUKUM Section */}
-          <section data-reveal className="px-5 lg:px-20 space-y-12">
+          <section data-reveal className="lazy-section px-5 lg:px-20 space-y-12">
             <div className="text-center max-w-2xl mx-auto space-y-2">
               <span className="text-[10px] tracking-[0.3em] font-sans font-bold text-brand-gold uppercase">
                 Signature Values
@@ -356,7 +327,7 @@ const Home = () => {
           </section>
 
           {/* 8. Customer Testimonials */}
-          <section data-reveal className="px-5 lg:px-20 py-16 bg-[#0F0F0F] text-[#FAF8F2] relative overflow-hidden">
+          <section data-reveal className="lazy-section px-5 lg:px-20 py-16 bg-[#0F0F0F] text-[#FAF8F2] relative overflow-hidden">
             <div className="absolute inset-0 opacity-10">
               <img
                 className="w-full h-full object-cover"
@@ -412,7 +383,7 @@ const Home = () => {
           </section>
 
           {/* 9. Newsletter Section */}
-          <section className="px-5 lg:px-20">
+          <section className="lazy-section px-5 lg:px-20">
             <div className="max-w-4xl mx-auto border border-[#C8A24A]/30 p-8 lg:p-12 text-center space-y-6 bg-white shadow-luxury">
               <span className="text-[10px] tracking-[0.3em] font-sans font-bold text-brand-gold uppercase block">
                 The {STORE_NAME} Society
@@ -470,26 +441,30 @@ const Home = () => {
           </section>
 
           {/* Chat Launcher */}
-          <section className="fixed bottom-10 right-10 z-[999]">
+          <section className="z-[999]">
             {showChatBot ? (
-              <ChatBot handleClose={() => setShowChatBot(false)} />
+              <div className="fixed inset-4 md:inset-auto md:bottom-10 md:right-10 z-[999]">
+                <ChatBot handleClose={() => setShowChatBot(false)} />
+              </div>
             ) : (
-              <Button
-                onClick={() => setShowChatBot(true)}
-                sx={{
-                  borderRadius: "2rem",
-                  bgcolor: "#0F0F0F",
-                  border: "1px solid #C8A24A",
-                  "&:hover": {
-                    bgcolor: "#C8A24A",
-                    borderColor: "#0F0F0F"
-                  }
-                }}
-                variant="contained"
-                className="h-14 w-14 flex justify-center items-center rounded-full shadow-lg"
-              >
-                <ChatBubbleIcon sx={{ color: "white", fontSize: "1.8rem" }} />
-              </Button>
+              <div className="fixed bottom-10 right-10 z-[999]">
+                <Button
+                  onClick={() => setShowChatBot(true)}
+                  sx={{
+                    borderRadius: "2rem",
+                    bgcolor: "#0F0F0F",
+                    border: "1px solid #C8A24A",
+                    "&:hover": {
+                      bgcolor: "#C8A24A",
+                      borderColor: "#0F0F0F"
+                    }
+                  }}
+                  variant="contained"
+                  className="h-14 w-14 flex justify-center items-center rounded-full shadow-lg"
+                >
+                  <ChatBubbleIcon sx={{ color: "white", fontSize: "1.8rem" }} />
+                </Button>
+              </div>
             )}
           </section>
         </div>

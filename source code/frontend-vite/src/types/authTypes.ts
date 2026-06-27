@@ -13,14 +13,16 @@ export interface ApiResponse {
 export interface LoginRequest {
     email: string;
     otp: string;
-    navigate:any;
+    navigate: any;
+    from?: string;
 }
 
 export interface SignupRequest {
     email: string;
     fullName: string;
     otp: string;
-    navigate:any
+    navigate: any;
+    from?: string;
 }
 
 export interface ResetPasswordRequest {
@@ -33,5 +35,5 @@ export interface AuthState {
     role: string | null;
     loading: boolean;
     error: string | null;
-    otpSent:boolean
+    otpSent: boolean
 }

@@ -54,6 +54,7 @@ export const searchProduct = createAsyncThunk<Product[], string>(
 export const getAllProducts = createAsyncThunk<
   any,
   {
+    query?: string;
     giftCategory?: string;
     occasionId?: number;
     personalized?: boolean;
@@ -62,6 +63,7 @@ export const getAllProducts = createAsyncThunk<
     minDiscount?: number;
     sort?: string;
     stock?: string;
+    material?: string;
     pageNumber?: number;
   }
 >("products/getAllProducts", async (params, { rejectWithValue }) => {

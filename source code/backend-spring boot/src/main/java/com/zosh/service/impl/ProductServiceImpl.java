@@ -220,7 +220,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> getAllProduct(String giftCategory,
+    public Page<Product> getAllProduct(String query,
+                                       String giftCategory,
                                        Long occasionId,
                                        Long recipientId,
                                        Boolean personalized,
@@ -229,10 +230,19 @@ public class ProductServiceImpl implements ProductService {
                                        Integer minDiscount,
                                        String sort,
                                        String stock,
+                                       String material,
                                        Integer pageNumber) {
-        Specification<Product> spec = (root, query, criteriaBuilder) -> {
+        Specification<Product> spec = (root, queryObj, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.get("status"), ProductStatus.ACTIVE));
+
+            if (query != null && !query.isEmpty()) {
+                String pattern = "%" + query.toLowerCase() + "%";
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), pattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), pattern)
+                ));
+            }
 
             if (giftCategory != null && !giftCategory.isEmpty()) {
                 predicates.add(criteriaBuilder.equal(
@@ -259,6 +269,13 @@ public class ProductServiceImpl implements ProductService {
             if (stock != null && stock.equalsIgnoreCase("in_stock")) {
                 predicates.add(criteriaBuilder.isTrue(root.get("in_stock")));
             }
+            if (material != null && !material.isEmpty()) {
+                String pattern = "%" + material.toLowerCase() + "%";
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), pattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), pattern)
+                ));
+            }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
@@ -266,13 +283,13 @@ public class ProductServiceImpl implements ProductService {
         if (sort != null && !sort.isEmpty()) {
             pageable = switch (sort) {
                 case "price_low" ->
-                        PageRequest.of(pageNumber != null ? pageNumber : 0, 10, Sort.by("sellingPrice").ascending());
+                        PageRequest.of(pageNumber != null ? pageNumber : 0, 24, Sort.by("sellingPrice").ascending());
                 case "price_high" ->
-                        PageRequest.of(pageNumber != null ? pageNumber : 0, 10, Sort.by("sellingPrice").descending());
-                default -> PageRequest.of(pageNumber != null ? pageNumber : 0, 10, Sort.unsorted());
+                        PageRequest.of(pageNumber != null ? pageNumber : 0, 24, Sort.by("sellingPrice").descending());
+                default -> PageRequest.of(pageNumber != null ? pageNumber : 0, 24, Sort.unsorted());
             };
         } else {
-            pageable = PageRequest.of(pageNumber != null ? pageNumber : 0, 10, Sort.unsorted());
+            pageable = PageRequest.of(pageNumber != null ? pageNumber : 0, 24, Sort.unsorted());
         }
 
         return productRepository.findAll(spec, pageable);
@@ -281,6 +298,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> recentlyAddedProduct() {
         return productRepository.findTop10ByOrderByCreatedAtDesc();
+    }
+
+    @Override
+    public List<Product> getFeaturedProducts() {
+        return productRepository.findByFeaturedTrueAndStatus(ProductStatus.ACTIVE)
+                .stream().limit(12).toList();
     }
 
     private void setCategory(Product product, Long categoryId, Long subcategoryId) throws ProductException {
