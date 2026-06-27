@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-// Backend runs on port 5454 (see application.properties: server.port=5454)
-export const API_URL = "http://localhost:5454";
-export const DEPLOYED_URL = "https://zosh-bazzar-backend.onrender.com"
+// Uses VITE_API_URL env var in production (set in Vercel dashboard), falls back to localhost for dev
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5454";
 
 export const api = axios.create({
   baseURL: API_URL,
