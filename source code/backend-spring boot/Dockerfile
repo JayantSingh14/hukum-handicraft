@@ -1,18 +1,21 @@
-# Use the official OpenJDK 17 image as a base
-FROM maven:3.8.4-openjdk-17 AS build
-
-# Set the working directory inside the container
+# ── Stage 1: Build ────────────────────────────────────────────────────────────
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Add a volume to store logs
-VOLUME /tmp
+# Copy pom.xml and download dependencies first (layer caching)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-# Copy the JAR file to the container
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
+# Copy source and build
+COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-# Expose port 8080 (or your configured port)
-EXPOSE 8080
+# ── Stage 2: Run ──────────────────────────────────────────────────────────────
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
 
-# Run the Spring Boot app
+COPY --from=build /app/target/*.jar app.jar
+
+EXPOSE 5454
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
