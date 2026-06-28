@@ -84,7 +84,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                         />
                     )}
                     {(item.discountPercent ?? 0) > 0 && (
-                        <span className="discount-badge">{item.discountPercent}% OFF</span>
+                        <span className="discount-badge">{item.discountPercent ?? 0}% OFF</span>
                     )}
                 </div>
                 <div className="card-list-details">
@@ -137,7 +137,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                 ))}
 
                 {(item.discountPercent ?? 0) > 0 && (
-                    <span className="discount-badge">{item.discountPercent}% OFF</span>
+                    <span className="discount-badge">{item.discountPercent ?? 0}% OFF</span>
                 )}
 
                 {/* Wishlist top-right */}
@@ -205,7 +205,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                 ))}
 
                 {(item.discountPercent ?? 0) > 0 && (
-                    <span className="discount-badge">{item.discountPercent}% OFF</span>
+                    <span className="discount-badge">{item.discountPercent ?? 0}% OFF</span>
                 )}
 
                 {/* Wishlist */}
@@ -244,7 +244,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                     <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: "0.8rem", color: "#1a1612" }}>₹{item.sellingPrice}</span>
                     <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.72rem", color: "#aaa", textDecoration: "line-through" }}>₹{item.mrpPrice}</span>
                     {(item.discountPercent ?? 0) > 0 && (
-                        <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.68rem", fontWeight: 600, color: "#C8A24A" }}>{item.discountPercent}% OFF</span>
+                        <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.68rem", fontWeight: 600, color: "#C8A24A" }}>{item.discountPercent ?? 0}% OFF</span>
                     )}
                 </div>
             </div>
