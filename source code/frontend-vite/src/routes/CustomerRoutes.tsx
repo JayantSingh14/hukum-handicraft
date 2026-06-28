@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import Home from '../customer/pages/Home/Home';
@@ -21,10 +21,10 @@ import { getWishlistByUserId } from '../Redux Toolkit/Customer/WishlistSlice';
 import SearchProducts from '../customer/pages/Search/SearchProducts';
 
 // Ultra-lightweight: opacity-only = 100% GPU, zero layout work
-const pageVariants = {
+const pageVariants: Variants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.18, ease: 'easeOut' } },
-  exit: { opacity: 0, transition: { duration: 0.1, ease: 'easeIn' } },
+  visible: { opacity: 1, transition: { duration: 0.18, ease: 'easeOut' as const } },
+  exit: { opacity: 0, transition: { duration: 0.1, ease: 'easeIn' as const } },
 };
 
 const CustomerRoutes = () => {

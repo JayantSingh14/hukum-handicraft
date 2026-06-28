@@ -1,17 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Drawer,
   IconButton,
-  TextField,
   CircularProgress,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../Redux Toolkit/Store";
 import { searchProduct } from "../../../Redux Toolkit/Customer/ProductSlice";
 
@@ -699,17 +696,6 @@ const LuxurySearchModal = ({ open, onClose }: LuxurySearchModalProps) => {
     navigate(`/products/${catVal}`);
   };
 
-  const handleQuickGuideClick = (guide: any) => {
-    onClose();
-    setQuery("");
-    const params = new URLSearchParams();
-    if (guide.search) params.set("search", guide.search);
-    if (guide.category) params.set("category", guide.category);
-    if (guide.material) params.set("material", guide.material);
-    if (guide.price) params.set("price", guide.price);
-    if (guide.tag) params.set("tag", guide.tag);
-    navigate(`/products?${params.toString()}`);
-  };
 
   const clearAllFilters = () => {
     setSelectedCategory("");
@@ -741,10 +727,6 @@ const LuxurySearchModal = ({ open, onClose }: LuxurySearchModalProps) => {
     (products.searchProduct && products.searchProduct.length > 0);
 
   // Take the first 4 products from API as bestseller recommendation fallback
-  const displayBestsellers =
-    products.products && products.products.length >= 4
-      ? products.products.slice(0, 4)
-      : MOCK_BESTSELLERS;
 
   return (
     <>

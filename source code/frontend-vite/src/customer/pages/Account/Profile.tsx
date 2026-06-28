@@ -1,4 +1,4 @@
-import { Alert, Divider, Snackbar } from '@mui/material'
+import { Alert, Snackbar } from '@mui/material'
 import { useEffect, useState, useRef } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Order from './Order'
