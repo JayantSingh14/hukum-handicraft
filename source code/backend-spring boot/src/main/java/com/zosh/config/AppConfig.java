@@ -27,6 +27,7 @@ public class AppConfig {
 
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/auth/**", "/api/auth/**").permitAll()
                 .requestMatchers("/products/**", "/api/products/*/reviews").permitAll()
                 .requestMatchers("/home/**", "/home-page", "/recipients/**", "/occasions/**").permitAll()

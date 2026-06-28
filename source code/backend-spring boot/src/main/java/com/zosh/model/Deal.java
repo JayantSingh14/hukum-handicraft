@@ -13,7 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Deal {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "deal_seq")
+    @SequenceGenerator(name = "deal_seq", sequenceName = "deal_seq", allocationSize = 1)
     private Long id;
     private Integer discount;
 

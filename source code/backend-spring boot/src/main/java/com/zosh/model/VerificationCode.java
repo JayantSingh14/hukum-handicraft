@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 public class VerificationCode {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "verification_code_seq")
+    @SequenceGenerator(name = "verification_code_seq", sequenceName = "verification_code_seq", allocationSize = 1)
     private Long id;
 
     private String otp;

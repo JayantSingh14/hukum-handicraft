@@ -19,7 +19,8 @@ import java.util.Set;
 public class PaymentOrder {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "payment_order_seq")
+    @SequenceGenerator(name = "payment_order_seq", sequenceName = "payment_order_seq", allocationSize = 1)
     private Long id;
 
     private Long amount;

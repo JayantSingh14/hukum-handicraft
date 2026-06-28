@@ -22,9 +22,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
                      "(LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :search, '%')) OR u.mobile LIKE CONCAT('%', :search, '%'))")
        List<User> searchCustomers(@Param("role") USER_ROLE role, @Param("search") String search);
 
-       @Query("SELECT MONTH(u.createdAt) as month, YEAR(u.createdAt) as year, COUNT(u) as count " +
+       @Query("SELECT EXTRACT(MONTH FROM u.createdAt) as month, EXTRACT(YEAR FROM u.createdAt) as year, COUNT(u) as count " +
                      "FROM User u WHERE u.role = :role AND u.createdAt >= :start " +
-                     "GROUP BY YEAR(u.createdAt), MONTH(u.createdAt) ORDER BY year, month")
+                     "GROUP BY EXTRACT(YEAR FROM u.createdAt), EXTRACT(MONTH FROM u.createdAt) ORDER BY year, month")
        List<Object[]> customerGrowthByMonth(@Param("role") USER_ROLE role, @Param("start") LocalDateTime start);
 
        long countByRoleAndCreatedAtAfter(USER_ROLE role, LocalDateTime date);

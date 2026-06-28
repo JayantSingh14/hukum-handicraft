@@ -28,14 +28,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                                   @Param("start") LocalDateTime start,
                                                   @Param("end") LocalDateTime end);
 
-    @Query("SELECT MONTH(o.orderDate) as month, YEAR(o.orderDate) as year, COALESCE(SUM(o.totalSellingPrice), 0) as revenue " +
+    @Query("SELECT EXTRACT(MONTH FROM o.orderDate) as month, EXTRACT(YEAR FROM o.orderDate) as year, COALESCE(SUM(o.totalSellingPrice), 0) as revenue " +
            "FROM Order o WHERE o.paymentStatus = :status AND o.orderDate >= :start " +
-           "GROUP BY YEAR(o.orderDate), MONTH(o.orderDate) ORDER BY year, month")
+           "GROUP BY EXTRACT(YEAR FROM o.orderDate), EXTRACT(MONTH FROM o.orderDate) ORDER BY year, month")
     List<Object[]> revenueByMonth(@Param("status") PaymentStatus status, @Param("start") LocalDateTime start);
 
-    @Query("SELECT MONTH(o.orderDate) as month, YEAR(o.orderDate) as year, COUNT(o) as count " +
+    @Query("SELECT EXTRACT(MONTH FROM o.orderDate) as month, EXTRACT(YEAR FROM o.orderDate) as year, COUNT(o) as count " +
            "FROM Order o WHERE o.orderDate >= :start " +
-           "GROUP BY YEAR(o.orderDate), MONTH(o.orderDate) ORDER BY year, month")
+           "GROUP BY EXTRACT(YEAR FROM o.orderDate), EXTRACT(MONTH FROM o.orderDate) ORDER BY year, month")
     List<Object[]> ordersByMonth(@Param("start") LocalDateTime start);
 
     @Query("SELECT o FROM Order o WHERE " +
