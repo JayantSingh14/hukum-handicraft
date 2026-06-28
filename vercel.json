@@ -1,7 +1,6 @@
 {
   "buildCommand": "cd \"source code/frontend-vite\" && npm install && npm run build",
   "outputDirectory": "source code/frontend-vite/dist",
-  "installCommand": "echo skip",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
