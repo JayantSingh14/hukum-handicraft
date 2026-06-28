@@ -83,7 +83,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                             onLoad={() => handleImageLoad(0)}
                         />
                     )}
-                    {item.discountPercent > 0 && (
+                    {(item.discountPercent ?? 0) > 0 && (
                         <span className="discount-badge">{item.discountPercent}% OFF</span>
                     )}
                 </div>
@@ -136,7 +136,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                     />
                 ))}
 
-                {item.discountPercent > 0 && (
+                {(item.discountPercent ?? 0) > 0 && (
                     <span className="discount-badge">{item.discountPercent}% OFF</span>
                 )}
 
@@ -204,7 +204,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                     />
                 ))}
 
-                {item.discountPercent > 0 && (
+                {(item.discountPercent ?? 0) > 0 && (
                     <span className="discount-badge">{item.discountPercent}% OFF</span>
                 )}
 
@@ -243,7 +243,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 10px" }}>
                     <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: "0.8rem", color: "#1a1612" }}>₹{item.sellingPrice}</span>
                     <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.72rem", color: "#aaa", textDecoration: "line-through" }}>₹{item.mrpPrice}</span>
-                    {item.discountPercent > 0 && (
+                    {(item.discountPercent ?? 0) > 0 && (
                         <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.68rem", fontWeight: 600, color: "#C8A24A" }}>{item.discountPercent}% OFF</span>
                     )}
                 </div>
