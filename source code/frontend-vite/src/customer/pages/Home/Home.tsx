@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import BestSellers from "./BestSellers/BestSellers";
 import LuxuryShowcase from "./TopBrands/LuxuryShowcase";
-import ElectronicCategory from "./Electronic Category/ElectronicCategory";
 import LuxuryMarquee from "./LuxuryMarquee/LuxuryMarquee";
 import CategoryDiscovery from "./CategoryDiscovery/CategoryDiscovery";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
@@ -193,20 +192,6 @@ const Home = () => {
 
         {/* 2. Premium Category Discovery Experience */}
         <CategoryDiscovery grid={homePage.homePageData?.grid} />
-
-          {/* 2. Horizontal Quick Categories Band */}
-          {homePage.homePageData?.electricCategories && homePage.homePageData.electricCategories.length > 0 && (
-            <motion.section
-              data-reveal
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="px-5 lg:px-20 -mt-10 lg:-mt-20 relative z-20"
-            >
-              <ElectronicCategory />
-            </motion.section>
-          )}
 
           {/* 3. Featured Collections Slider */}
           <section data-reveal>
