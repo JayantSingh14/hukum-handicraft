@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ProductCard from "./ProductCard/ProductCard";
+import type { CardVariant } from "./ProductCard/ProductCard";
 import FilterSection from "./FilterSection";
 import {
   Drawer,
@@ -10,6 +11,7 @@ import {
   MenuItem,
   Pagination,
   Select,
+  Tooltip,
   useMediaQuery,
   useTheme,
   type SelectChangeEvent,
@@ -17,6 +19,9 @@ import {
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../Redux Toolkit/Store";
 import { getAllProducts } from "../../../Redux Toolkit/Customer/ProductSlice";
@@ -273,8 +278,11 @@ const pageStyles = `
   }
 `;
 
+type ViewMode = "editorial" | "grid" | "list";
+
 const Products = () => {
   const [sort, setSort] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("editorial");
   const theme = useTheme();
   const isLarge = useMediaQuery(theme.breakpoints.up("lg"));
   const [showFilter, setShowFilter] = useState(false);
@@ -556,64 +564,56 @@ const Products = () => {
                     <FilterAltIcon sx={{ fontSize: 14 }} />
                     Filters
                     {hasChips && (
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: 16,
-                          height: 16,
-                          borderRadius: "50%",
-                          background: "#C8A24A",
-                          color: "#fff",
-                          fontSize: 9,
-                          fontWeight: 700,
-                        }}
-                      >
+                      <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 16, height: 16, borderRadius: "50%", background: "#C8A24A", color: "#fff", fontSize: 9, fontWeight: 700 }}>
                         {(activePrice ? 1 : 0) + activeMaterials.length}
                       </span>
                     )}
                   </button>
                 )}
-                <span className="hk-product-count">
-                  {products.products.length} products
-                </span>
+                <span className="hk-product-count">{products.products.length} products</span>
               </div>
 
-              <FormControl
-                size="small"
-                sx={{
-                  minWidth: 160,
-                  "& .MuiOutlinedInput-root": {
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "0.78rem",
-                    borderRadius: "2px",
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "rgba(200,162,74,0.6)",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#C8A24A",
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    fontFamily: "Inter, sans-serif",
-                    fontSize: "0.78rem",
-                    "&.Mui-focused": { color: "#C8A24A" },
-                  },
-                }}
-              >
-                <InputLabel>Sort By</InputLabel>
-                <Select value={sort} label="Sort By" onChange={handleSortChange}>
-                  <MenuItem value="">Default</MenuItem>
-                  <MenuItem value="price_low">Price: Low to High</MenuItem>
-                  <MenuItem value="price_high">Price: High to Low</MenuItem>
-                </Select>
-              </FormControl>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {/* View mode toggle */}
+                <div style={{ display: "flex", gap: 2, border: "1px solid rgba(200,162,74,0.25)", borderRadius: 2, overflow: "hidden" }}>
+                  {([
+                    { mode: "editorial", icon: <DashboardIcon sx={{ fontSize: 16 }} />, label: "Editorial" },
+                    { mode: "grid",      icon: <ViewModuleIcon sx={{ fontSize: 16 }} />, label: "Grid" },
+                    { mode: "list",      icon: <ViewListIcon sx={{ fontSize: 16 }} />,   label: "List" },
+                  ] as const).map(({ mode, icon, label }) => (
+                    <Tooltip key={mode} title={label} placement="top">
+                      <button
+                        onClick={() => setViewMode(mode)}
+                        style={{
+                          padding: "6px 10px",
+                          background: viewMode === mode ? "rgba(200,162,74,0.12)" : "transparent",
+                          color: viewMode === mode ? "#C8A24A" : "#8a7a6a",
+                          border: "none",
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        {icon}
+                      </button>
+                    </Tooltip>
+                  ))}
+                </div>
+
+                <FormControl size="small" sx={{ minWidth: 150, "& .MuiOutlinedInput-root": { fontFamily: "Inter, sans-serif", fontSize: "0.78rem", borderRadius: "2px", "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(200,162,74,0.6)" }, "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#C8A24A" } }, "& .MuiInputLabel-root": { fontFamily: "Inter, sans-serif", fontSize: "0.78rem", "&.Mui-focused": { color: "#C8A24A" } } }}>
+                  <InputLabel>Sort By</InputLabel>
+                  <Select value={sort} label="Sort By" onChange={handleSortChange}>
+                    <MenuItem value="">Default</MenuItem>
+                    <MenuItem value="price_low">Price: Low to High</MenuItem>
+                    <MenuItem value="price_high">Price: High to Low</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
             </div>
 
             {/* Product Grid */}
             {fetching ? (
-              /* ── Skeleton grid while loading ── */
               <div className="hk-grid">
                 {Array.from({ length: 12 }).map((_, i) => (
                   <div key={i} className="hk-skeleton-card">
@@ -621,7 +621,6 @@ const Products = () => {
                     <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
                       <div className="hk-skeleton" style={{ height: 14, borderRadius: 3, width: "70%" }} />
                       <div className="hk-skeleton" style={{ height: 11, borderRadius: 3, width: "45%" }} />
-                      <div className="hk-skeleton" style={{ height: 13, borderRadius: 3, width: "30%", marginTop: 4 }} />
                     </div>
                   </div>
                 ))}
@@ -632,16 +631,62 @@ const Products = () => {
                 <p className="hk-empty-text">No products found</p>
                 <p className="hk-empty-sub">Try adjusting your filters</p>
               </div>
+            ) : viewMode === "list" ? (
+              /* ── LIST view ── */
+              <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", gap: 16 }}>
+                {products.products.map((item: any, idx: number) => (
+                  <motion.div key={item.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2, delay: Math.min(idx * 0.04, 0.3) }}>
+                    <ProductCard item={item} variant="list" />
+                  </motion.div>
+                ))}
+              </div>
+            ) : viewMode === "editorial" && products.products.length >= 3 ? (
+              /* ── EDITORIAL view ── */
+              <div style={{ padding: "24px 28px" }}>
+                {/* First editorial block: 1 featured + 4 side */}
+                <div style={{ display: "grid", gridTemplateColumns: isLarge ? "2fr 1fr 1fr" : "1fr 1fr", gridTemplateRows: isLarge ? "auto auto" : "auto", gap: 16, marginBottom: 16 }}>
+                  {/* Featured hero */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                    style={{ gridRow: isLarge ? "span 2" : "span 1", gridColumn: isLarge ? "1" : "1 / -1" }}
+                  >
+                    <ProductCard item={products.products[0]} variant="featured" />
+                  </motion.div>
+
+                  {/* Side products (up to 4) */}
+                  {products.products.slice(1, isLarge ? 5 : 3).map((item: any, idx: number) => (
+                    <motion.div key={item.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, delay: (idx + 1) * 0.06 }}>
+                      <ProductCard item={item} variant="standard" />
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Remaining products in regular grid */}
+                {products.products.length > (isLarge ? 5 : 3) && (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16, margin: "28px 0 20px" }}>
+                      <div style={{ flex: 1, height: 1, background: "rgba(200,162,74,0.15)" }} />
+                      <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.65rem", letterSpacing: "0.3em", color: "#C8A24A", textTransform: "uppercase" }}>More From The Collection</span>
+                      <div style={{ flex: 1, height: 1, background: "rgba(200,162,74,0.15)" }} />
+                    </div>
+                    <div className="hk-grid" style={{ padding: 0 }}>
+                      {products.products.slice(isLarge ? 5 : 3).map((item: any, idx: number) => (
+                        <motion.div key={item.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, delay: Math.min(idx * 0.04, 0.3) }}>
+                          <ProductCard item={item} variant="standard" />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             ) : (
+              /* ── GRID view (also fallback for editorial with < 3 products) ── */
               <div className="hk-grid">
                 {products.products.map((item: any, idx: number) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.22, delay: Math.min(idx * 0.035, 0.35), ease: "easeOut" }}
-                  >
-                    <ProductCard item={item} />
+                  <motion.div key={item.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22, delay: Math.min(idx * 0.035, 0.35), ease: "easeOut" }}>
+                    <ProductCard item={item} variant={"standard" as CardVariant} />
                   </motion.div>
                 ))}
               </div>
