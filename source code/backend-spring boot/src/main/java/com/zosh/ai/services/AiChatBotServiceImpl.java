@@ -16,6 +16,7 @@ import com.zosh.response.FunctionResponse;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,107 +25,84 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class AiChatBotServiceImpl implements AiChatBotService {
 
+    @Value("${gemini.api.key}")
+    private String GEMINI_API_KEY;
 
-    String GEMINI_API_KEY = "AIzaSyDp-jeRRqqbr08scpIn1p9rLEL_Nqv5Zuo";
+    private static final String GEMINI_MODEL = "gemini-1.5-flash";
+    private static final String SYSTEM_INSTRUCTION =
+            "You are HUKUM's Artisan Assistant — a helpful, warm, and knowledgeable AI for a premium Indian handicraft luxury e-commerce store. " +
+            "Help users explore products, understand their cart, check order history, and discover the craft behind each piece. " +
+            "Be concise, elegant, and friendly. If you cannot find specific information, politely say so.";
 
     private final CartRepository cartRepository;
-
     private final OrderRepository orderRepository;
-
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
+    private String geminiUrl() {
+        return "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent?key=" + GEMINI_API_KEY;
+    }
 
     private JSONArray createFunctionDeclarations() {
         return new JSONArray()
                 .put(new JSONObject()
                         .put("name", "getUserCart")
-                        .put("description", "Retrieve the user's cart details")
+                        .put("description", "Retrieve the user's current cart details including items, quantities and totals")
                         .put("parameters", new JSONObject()
                                 .put("type", "OBJECT")
                                 .put("properties", new JSONObject()
                                         .put("cart", new JSONObject()
                                                 .put("type", "STRING")
-                                                .put("description", "Cart Details, like total item in cart, cart item, remove item from cart, cart Id")
-                                        )
-                                )
-                                .put("required", new JSONArray()
-                                        .put("cart")
-                                )
-                        )
-                )
+                                                .put("description", "Cart details")))
+                                .put("required", new JSONArray().put("cart"))))
                 .put(new JSONObject()
                         .put("name", "getUsersOrder")
-                        .put("description", "Retrieve the user's order details")
+                        .put("description", "Retrieve the user's order history including past and current orders")
                         .put("parameters", new JSONObject()
                                 .put("type", "OBJECT")
                                 .put("properties", new JSONObject()
                                         .put("order", new JSONObject()
                                                 .put("type", "STRING")
-                                                .put("description", "Order Details, order, total order, current order, delivered order, pending order, current order, cancled order")
-                                        )
-                                )
-                                .put("required", new JSONArray()
-                                        .put("order")
-                                )
-                        )
-                )
+                                                .put("description", "Order details")))
+                                .put("required", new JSONArray().put("order"))))
                 .put(new JSONObject()
                         .put("name", "getProductDetails")
-                        .put("description", "Retrieve product details")
+                        .put("description", "Retrieve details about a specific product")
                         .put("parameters", new JSONObject()
                                 .put("type", "OBJECT")
                                 .put("properties", new JSONObject()
                                         .put("product", new JSONObject()
                                                 .put("type", "STRING")
-                                                .put("description", "The gift product details: title, id, gift category, occasion, recipient, personalized flag, selling price, mrp price, ratings, etc.")
-                                        )
-                                )
-                                .put("required", new JSONArray()
-                                        .put("product")
-                                )
-                        )
-                );
+                                                .put("description", "Product details")))
+                                .put("required", new JSONArray().put("product"))));
     }
 
-
-    private FunctionResponse processFunctionCall(JSONObject functionCall,
-                                                 Long productId,
-                                                 Long userId
-    ) throws ProductException {
+    private FunctionResponse processFunctionCall(JSONObject functionCall, Long productId, Long userId) throws ProductException {
         String functionName = functionCall.getString("name");
-        JSONObject args = functionCall.getJSONObject("args");
-
         FunctionResponse res = new FunctionResponse();
         res.setFunctionName(functionName);
-        User user=userRepository.findById(userId).orElse(null);
 
         switch (functionName) {
             case "getUserCart":
-//                Long userId = Long.parseLong(args.getString("userId"));
                 Cart cart = cartRepository.findByUserId(userId);
-                System.out.println("cart: " + cart.getId());
-                res.setUserCart(cart);
+                if (cart != null) res.setUserCart(cart);
                 break;
             case "getUsersOrder":
-//                Long orderId = Long.parseLong(args.getString("orderId"));
                 List<Order> orders = orderRepository.findByUserId(userId);
-                res.setOrderHistory(OrderMapper.toOrderHistory(orders,user));
-                System.out.println("order history: " + OrderMapper.toOrderHistory(orders,user));
+                User user = userRepository.findById(userId).orElse(null);
+                res.setOrderHistory(OrderMapper.toOrderHistory(orders, user));
                 break;
             case "getProductDetails":
-//                Long productId = Long.parseLong(args.getString("productId"));
-                Product product = productRepository.findById(productId).orElseThrow(
-                        () -> new ProductException("product not found")
-                );
-
-                res.setProduct(product);
+                if (productId != null) {
+                    Product product = productRepository.findById(productId).orElseThrow(
+                            () -> new ProductException("Product not found"));
+                    res.setProduct(product);
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported function: " + functionName);
@@ -132,132 +110,97 @@ public class AiChatBotServiceImpl implements AiChatBotService {
         return res;
     }
 
-
-    public FunctionResponse getFunctionResponse(String prompt, Long productId, Long userId) throws ProductException {
-        String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY;
-
-        JSONObject requestBodyJson = new JSONObject()
-                .put("contents", new JSONArray()
-                        .put(new JSONObject()
-                                .put("parts", new JSONArray()
-                                        .put(new JSONObject()
-                                                .put("text", prompt)
-                                        )
-                                )
-                        )
-                ).put("tools", new JSONArray()
-                        .put(new JSONObject()
-                                .put("functionDeclarations", createFunctionDeclarations())
-                        )
-                );
-
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyJson.toString(), headers);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.postForEntity(GEMINI_API_URL, requestEntity, String.class);
-
-        String responseBody = response.getBody();
-        JSONObject jsonObject = new JSONObject(responseBody);
-
-        System.out.println("functionResponse: " + responseBody);
-        JSONArray candidates = jsonObject.getJSONArray("candidates");
-        JSONObject firstCandidate = candidates.getJSONObject(0);
-        JSONObject content = firstCandidate.getJSONObject("content");
-        JSONArray parts = content.getJSONArray("parts");
-        JSONObject firstPart = parts.getJSONObject(0);
-        JSONObject functionCall = firstPart.getJSONObject("functionCall");
-
-        return processFunctionCall(functionCall, productId, userId);
-    }
-
-
     @Override
     public ApiResponse aiChatBot(String prompt, Long productId, Long userId) throws ProductException {
-        String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY;
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            RestTemplate restTemplate = new RestTemplate();
 
-        System.out.println("------- " + prompt);
+            // First call: ask Gemini (with function declarations) to decide how to respond
+            JSONObject requestBody = new JSONObject()
+                    .put("systemInstruction", new JSONObject()
+                            .put("parts", new JSONArray()
+                                    .put(new JSONObject().put("text", SYSTEM_INSTRUCTION))))
+                    .put("contents", new JSONArray()
+                            .put(new JSONObject()
+                                    .put("role", "user")
+                                    .put("parts", new JSONArray()
+                                            .put(new JSONObject().put("text", prompt)))))
+                    .put("tools", new JSONArray()
+                            .put(new JSONObject()
+                                    .put("functionDeclarations", createFunctionDeclarations())));
 
-        FunctionResponse functionResponse = getFunctionResponse(prompt, productId, userId);
-        System.out.println("------- " + functionResponse);
+            HttpEntity<String> request1 = new HttpEntity<>(requestBody.toString(), headers);
+            ResponseEntity<String> response1 = restTemplate.postForEntity(geminiUrl(), request1, String.class);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+            JSONObject json1 = new JSONObject(response1.getBody());
+            JSONArray candidates1 = json1.getJSONArray("candidates");
+            JSONObject content1 = candidates1.getJSONObject(0).getJSONObject("content");
+            JSONObject firstPart = content1.getJSONArray("parts").getJSONObject(0);
 
-        // Construct the request body
-        String body = new JSONObject()
-                .put("contents", new JSONArray()
-                        .put(new JSONObject()
-                                .put("role", "user")
-                                .put("parts", new JSONArray()
-                                        .put(new JSONObject()
-                                                .put("text", prompt)
-                                        )
-                                )
-                        )
-                        .put(new JSONObject()
-                                .put("role", "model")
-                                .put("parts", new JSONArray()
-                                        .put(new JSONObject()
-                                                .put("functionCall", new JSONObject()
-                                                        .put("name", functionResponse.getFunctionName())
-                                                        .put("args", new JSONObject()
-                                                                .put("cart", functionResponse.getUserCart()!=null?functionResponse.getUserCart().getUser():null)
-                                                                .put("order",  functionResponse.getOrderHistory()!=null? functionResponse.getOrderHistory() :null )
-                                                                .put("product", functionResponse.getProduct()!=null?ProductMapper.toProductDto(functionResponse.getProduct()):null)
-                                                        )
-                                                )
-                                        )
-                                )
-                        )
-                        .put(new JSONObject()
-                                .put("role", "function")
-                                .put("parts", new JSONArray()
-                                        .put(new JSONObject()
-                                                .put("functionResponse", new JSONObject()
-                                                        .put("name", functionResponse.getFunctionName())
-                                                        .put("response", new JSONObject()
-                                                                .put("name", functionResponse.getFunctionName())
-                                                                .put("content", functionResponse)
-                                                        )
-                                                )
-                                        )
-                                )
-                        )
-                )
-                .put("tools", new JSONArray()
-                        .put(new JSONObject()
-                                .put("functionDeclarations", createFunctionDeclarations())
-                        )
-                )
-                .toString();
+            // If Gemini returned text directly (no function call needed), return it
+            if (!firstPart.has("functionCall")) {
+                ApiResponse res = new ApiResponse();
+                res.setMessage(firstPart.optString("text", "I'm here to help! Ask me about your cart, orders, or our handicraft products."));
+                return res;
+            }
 
-        // Make the API request
-        HttpEntity<String> request = new HttpEntity<>(body, headers);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.postForEntity(GEMINI_API_URL, request, String.class);
+            // Gemini wants to call a function — process it
+            FunctionResponse funcRes = processFunctionCall(firstPart.getJSONObject("functionCall"), productId, userId);
 
-        // Process the response
-        String responseBody = response.getBody();
-        JSONObject jsonObject = new JSONObject(responseBody);
+            // Second call: send function result back to Gemini for the final answer
+            JSONObject body2 = new JSONObject()
+                    .put("systemInstruction", new JSONObject()
+                            .put("parts", new JSONArray()
+                                    .put(new JSONObject().put("text", SYSTEM_INSTRUCTION))))
+                    .put("contents", new JSONArray()
+                            .put(new JSONObject()
+                                    .put("role", "user")
+                                    .put("parts", new JSONArray()
+                                            .put(new JSONObject().put("text", prompt))))
+                            .put(new JSONObject()
+                                    .put("role", "model")
+                                    .put("parts", new JSONArray()
+                                            .put(new JSONObject()
+                                                    .put("functionCall", new JSONObject()
+                                                            .put("name", funcRes.getFunctionName())
+                                                            .put("args", new JSONObject()
+                                                                    .put("cart", funcRes.getUserCart() != null ? funcRes.getUserCart().getId() : null)
+                                                                    .put("order", funcRes.getOrderHistory() != null ? funcRes.getOrderHistory().toString() : null)
+                                                                    .put("product", funcRes.getProduct() != null ? ProductMapper.toProductDto(funcRes.getProduct()).toString() : null))))))
+                            .put(new JSONObject()
+                                    .put("role", "function")
+                                    .put("parts", new JSONArray()
+                                            .put(new JSONObject()
+                                                    .put("functionResponse", new JSONObject()
+                                                            .put("name", funcRes.getFunctionName())
+                                                            .put("response", new JSONObject()
+                                                                    .put("name", funcRes.getFunctionName())
+                                                                    .put("content", funcRes.toString())))))))
+                    .put("tools", new JSONArray()
+                            .put(new JSONObject()
+                                    .put("functionDeclarations", createFunctionDeclarations())));
 
-        // Extract the first candidate
-        JSONArray candidates = jsonObject.getJSONArray("candidates");
-        JSONObject firstCandidate = candidates.getJSONObject(0);
+            HttpEntity<String> request2 = new HttpEntity<>(body2.toString(), headers);
+            ResponseEntity<String> response2 = restTemplate.postForEntity(geminiUrl(), request2, String.class);
 
-        // Extract the text
-        JSONObject content = firstCandidate.getJSONObject("content");
-        JSONArray parts = content.getJSONArray("parts");
-        JSONObject firstPart = parts.getJSONObject(0);
-        String text = firstPart.getString("text");
+            JSONObject json2 = new JSONObject(response2.getBody());
+            JSONArray candidates2 = json2.getJSONArray("candidates");
+            JSONObject content2 = candidates2.getJSONObject(0).getJSONObject("content");
+            JSONObject part2 = content2.getJSONArray("parts").getJSONObject(0);
 
-        // Prepare and return the API response
-        ApiResponse res = new ApiResponse();
-        res.setMessage(text);
-        return res;
+            String text = part2.optString("text", "I found your information but couldn't format a response. Please try again.");
 
+            ApiResponse res = new ApiResponse();
+            res.setMessage(text);
+            return res;
+
+        } catch (Exception e) {
+            System.err.println("AI ChatBot error: " + e.getMessage());
+            ApiResponse res = new ApiResponse();
+            res.setMessage("I'm having trouble connecting right now. Please try again in a moment.");
+            return res;
+        }
     }
 }
