@@ -61,7 +61,7 @@ const ChatBot = ({ handleClose, productId }: ChatBotProps) => {
                     { aiChatBot.messages.map((item: any, index: number) =>
                         item.role === "user" ? (
                             <div ref={chatContainerRef} className="self-end" key={index}>
-                                <PromptMessage message={item.message} index={index} />
+                                <PromptMessage message={item.message} />
                             </div>
                         ) : (
                             <div
