@@ -16,7 +16,6 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import LocalMallIcon from "@mui/icons-material/LocalMall";
 import StarIcon from "@mui/icons-material/Star";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { fetchHomePageData } from "../../../Redux Toolkit/Customer/Customer/AsyncThunk";
 import heroVideo from "../../../assets/hero-video.mp4";
 import { gsap } from "gsap";

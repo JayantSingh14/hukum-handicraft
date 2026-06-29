@@ -75,7 +75,7 @@ const OrderDetails = () => {
             <div className="text-right">
               <p className="font-sans text-[9px] tracking-widest uppercase text-charcoal/40 font-semibold">Expected Delivery</p>
               <p className="font-sans text-xs font-semibold text-brand-gold mt-0.5">
-                {orders.currentOrder?.orderStatus === "PENDING" || orders.currentOrder?.orderStatus === "PLACED"
+                {orders.currentOrder?.orderStatus === "PENDING"
                   ? "5–7 business days"
                   : orders.currentOrder?.orderStatus === "CONFIRMED"
                   ? "4–6 business days"
