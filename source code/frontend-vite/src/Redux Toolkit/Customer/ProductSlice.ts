@@ -13,6 +13,7 @@ interface ProductState {
   loading: boolean;
   error: string | null;
   searchProduct: Product[];
+  requestedProductId: number | null;
 }
 
 const initialState: ProductState = {
@@ -23,6 +24,7 @@ const initialState: ProductState = {
   loading: false,
   error: null,
   searchProduct: [],
+  requestedProductId: null,
 };
 
 export const fetchProductById = createAsyncThunk<Product, number>(
@@ -88,17 +90,23 @@ const productSlice = createSlice({
       state.product = null;
       state.loading = false;
       state.error = null;
+      state.requestedProductId = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProductById.pending, (state) => {
+      .addCase(fetchProductById.pending, (state, action) => {
         state.loading = true;
         state.error = null;
+        // Record which product was most recently requested
+        state.requestedProductId = action.meta.arg;
       })
       .addCase(fetchProductById.fulfilled, (state, action: PayloadAction<Product>) => {
-        state.product = action.payload;
-        state.loading = false;
+        // Drop stale responses — only apply if this matches the last requested id
+        if (state.requestedProductId === action.payload.id) {
+          state.product = action.payload;
+          state.loading = false;
+        }
       })
       .addCase(fetchProductById.rejected, (state, action) => {
         state.loading = false;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import type { MouseEvent } from "react";
 import "./ProductCard.css";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -10,7 +10,6 @@ import type { Product } from "../../../../types/productTypes";
 import { useAppDispatch, useAppSelector } from "../../../../Redux Toolkit/Store";
 import { addProductToWishlist } from "../../../../Redux Toolkit/Customer/WishlistSlice";
 import { addItemToCart, fetchUserCart } from "../../../../Redux Toolkit/Customer/CartSlice";
-import { fetchProductById } from "../../../../Redux Toolkit/Customer/ProductSlice";
 import { isWishlisted } from "../../../../util/isWishlisted";
 import { STORE_NAME } from "../../../../util/storeConfig";
 import { formatPrice } from "../../../../util/formatPrice";
@@ -30,22 +29,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
     const { wishlist } = useAppSelector((store) => store);
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const prefetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const handleMouseEnter = () => {
-        setIsHovered(true);
-        // Prefetch product details after 180ms hover so click feels instant
-        if (item.id) {
-            prefetchTimer.current = setTimeout(() => {
-                dispatch(fetchProductById(Number(item.id)));
-            }, 180);
-        }
-    };
-
-    const handleMouseLeave = () => {
-        setIsHovered(false);
-        if (prefetchTimer.current) clearTimeout(prefetchTimer.current);
-    };
+    const handleMouseEnter = () => setIsHovered(true);
+    const handleMouseLeave = () => setIsHovered(false);
 
     const isCardLoaded = Object.keys(loadedImages).length > 0;
     const wishlisted = wishlist.wishlist ? isWishlisted(wishlist.wishlist, item) : false;
@@ -70,7 +55,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
     };
 
     const goToDetail = () => {
-        navigate(`/product-details/${item.giftCategory?.toLowerCase() || "gifts"}/${item.title}/${item.id}`);
+        const cat = item.giftCategory?.toLowerCase().replace(/_/g, "-") || "gifts";
+        const slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        navigate(`/product-details/${cat}/${slug}/${item.id}`);
     };
 
     useEffect(() => {
