@@ -107,33 +107,35 @@ const BestSellers = () => {
   return (
     <section className="bg-[#FAF8F2] py-16 px-4 lg:px-16 border-y border-[#C8A24A]/10">
       {/* Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-2 mb-8">
-        <span className="text-[10px] tracking-[0.4em] font-sans font-bold text-[#C8A24A] uppercase block">
-          Most Loved by Our Patrons
-        </span>
-        <h2 className="font-serif text-3xl md:text-5xl font-medium uppercase tracking-wide text-[#1A1A1A]">
-          Bestselling Masterpieces
-        </h2>
-        <div className="h-[1px] w-20 bg-[#C8A24A] mx-auto mt-3" />
-      </div>
+      {/* Header + Tabs — full width, two columns */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+        <div className="space-y-1">
+          <span className="text-[9px] tracking-[0.35em] font-sans font-bold text-[#C8A24A] uppercase block">
+            Most Loved by Our Patrons
+          </span>
+          <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl font-medium uppercase tracking-wide text-[#1A1A1A] whitespace-nowrap">
+            Bestselling Masterpieces
+          </h2>
+        </div>
 
-      {/* Tab Filter Bar */}
-      <div className="flex gap-2 justify-center flex-wrap mb-10">
-        {TABS.map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className="font-sans text-[9px] tracking-[0.2em] uppercase px-4 py-2 border transition-all duration-200"
-            style={{
-              borderColor: activeTab === tab ? "#C8A24A" : "rgba(200,162,74,0.25)",
-              background: activeTab === tab ? "#C8A24A" : "transparent",
-              color: activeTab === tab ? "#0F0F0F" : "rgba(26,26,26,0.55)",
-              fontWeight: activeTab === tab ? 700 : 500,
-            }}
-          >
-            {tab}
-          </button>
-        ))}
+        {/* Tab Filter Bar */}
+        <div className="flex gap-1.5 flex-wrap sm:justify-end">
+          {TABS.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className="font-sans text-[8px] tracking-[0.18em] uppercase px-3 py-1.5 border transition-all duration-200 whitespace-nowrap"
+              style={{
+                borderColor: activeTab === tab ? "#C8A24A" : "rgba(200,162,74,0.25)",
+                background: activeTab === tab ? "#C8A24A" : "transparent",
+                color: activeTab === tab ? "#0F0F0F" : "rgba(26,26,26,0.55)",
+                fontWeight: activeTab === tab ? 700 : 500,
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Product Grid */}
