@@ -17,6 +17,7 @@ import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import LocalMallIcon from "@mui/icons-material/LocalMall";
 import StarIcon from "@mui/icons-material/Star";
 import { fetchHomePageData } from "../../../Redux Toolkit/Customer/Customer/AsyncThunk";
+import { getAllProducts } from "../../../Redux Toolkit/Customer/ProductSlice";
 import heroVideo from "../../../assets/hero-video.mp4";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -91,6 +92,84 @@ const galleryImages = [
   "https://images.unsplash.com/photo-1573408301185-9519f94816b5?q=80&w=600",
   "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?q=80&w=600",
 ];
+
+// ── New Arrivals horizontal strip ─────────────────────────────
+const newArrivalImages = [
+  { img: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=600", name: "Woven Silk Runner", price: "₹1,799", cat: "Table Décor" },
+  { img: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?q=80&w=600", name: "Blue Pottery Bowl", price: "₹1,299", cat: "Table Décor" },
+  { img: "https://images.unsplash.com/photo-1573408301185-9519f94816b5?q=80&w=600", name: "Madhubani Canvas", price: "₹3,999", cat: "Wall Art" },
+  { img: "https://images.unsplash.com/photo-1601524909162-ae8725290836?q=80&w=600", name: "Copper Water Set", price: "₹1,499", cat: "Kitchen & Dining" },
+  { img: "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?q=80&w=600", name: "Ikat Cushion Set", price: "₹2,299", cat: "Home Décor" },
+  { img: "https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=600", name: "Marble Coaster Set", price: "₹1,599", cat: "Table Décor" },
+  { img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=600", name: "Dhokra Horse", price: "₹3,499", cat: "Sculptures" },
+  { img: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=600", name: "Warli Wall Panel", price: "₹2,799", cat: "Wall Art" },
+];
+
+const NewArrivalsStrip = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { products } = useAppSelector((store: any) => store.products);
+
+  useEffect(() => {
+    if (!products?.length) dispatch(getAllProducts({ pageNumber: 0 }));
+  }, [dispatch, products]);
+
+  const items = (() => {
+    const db = (products || []).slice(-8).reverse().map((p: any) => ({
+      img: p.images?.[0] || newArrivalImages[0].img,
+      name: p.title,
+      price: `₹${p.sellingPrice.toLocaleString("en-IN")}`,
+      cat: p.category?.name || "Handcrafted",
+      id: String(p.id),
+      catId: p.category?.categoryId || "wall_art",
+    }));
+    if (db.length >= 6) return db;
+    const padded = newArrivalImages.slice(0, 8 - db.length).map(x => ({ ...x, id: null, catId: null }));
+    return [...db, ...padded];
+  })();
+
+  const handleClick = (item: any) => {
+    if (item.id && item.catId) navigate(`/product-details/${item.catId}/${item.name.replace(/\s+/g, "-")}/${item.id}`);
+    else navigate("/products");
+  };
+
+  return (
+    <div className="py-10 px-4 lg:px-16 bg-white border-b border-[#C8A24A]/10">
+      <div className="flex items-end justify-between mb-6">
+        <div>
+          <span className="font-sans text-[9px] tracking-[0.3em] text-[#C8A24A] uppercase font-bold block mb-1">Just In</span>
+          <h3 className="font-serif text-2xl lg:text-3xl font-semibold uppercase tracking-wide text-[#1A1A1A]">New Arrivals</h3>
+        </div>
+        <button onClick={() => navigate("/products")} className="font-sans text-[9px] tracking-[0.2em] uppercase text-[#C8A24A] border-b border-[#C8A24A]/40 pb-0.5 shrink-0">
+          View All →
+        </button>
+      </div>
+
+      {/* Scroll strip */}
+      <div className="flex gap-3 lg:gap-4 overflow-x-auto pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none" }}>
+        {items.map((item: any, i: number) => (
+          <div
+            key={i}
+            onClick={() => handleClick(item)}
+            className="snap-center shrink-0 w-[155px] lg:w-[185px] cursor-pointer group"
+          >
+            <div className="relative overflow-hidden aspect-[3/4] bg-[#F8F5F0]">
+              <img src={item.img} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              <div className="absolute top-2 left-2 bg-[#C8A24A] px-2 py-0.5">
+                <span className="font-sans text-[7px] font-bold tracking-[0.18em] uppercase text-[#0F0F0F]">New</span>
+              </div>
+            </div>
+            <div className="pt-2.5 space-y-0.5">
+              <p className="font-sans text-[8px] tracking-[0.15em] uppercase text-[#C8A24A]/70">{item.cat}</p>
+              <p className="font-serif text-xs font-medium text-[#1A1A1A] line-clamp-2 leading-snug">{item.name}</p>
+              <p className="font-sans text-xs font-bold text-[#1A1A1A]">{item.price}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const Home = () => {
   const [showChatBot, setShowChatBot] = useState(false);
@@ -257,7 +336,10 @@ const Home = () => {
             <LuxuryShowcase grid={homePage.homePageData?.grid} />
           </section>
 
-          {/* ── 4. BESTSELLERS ───────────────────────────────────── */}
+          {/* ── 4. NEW ARRIVALS STRIP ────────────────────────────── */}
+          <NewArrivalsStrip />
+
+          {/* ── 5. BESTSELLERS ───────────────────────────────────── */}
           <section data-reveal>
             <BestSellers />
           </section>
