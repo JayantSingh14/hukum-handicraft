@@ -282,7 +282,7 @@ type ViewMode = "editorial" | "grid" | "list";
 
 const Products = () => {
   const [sort, setSort] = useState("");
-  const [viewMode, setViewMode] = useState<ViewMode>("editorial");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const theme = useTheme();
   const isLarge = useMediaQuery(theme.breakpoints.up("lg"));
   const [showFilter, setShowFilter] = useState(false);

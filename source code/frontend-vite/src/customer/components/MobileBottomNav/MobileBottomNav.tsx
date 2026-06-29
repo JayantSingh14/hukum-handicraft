@@ -37,8 +37,8 @@ const MobileBottomNav = () => {
     ];
 
     return (
+        <div className="md:hidden">
         <nav
-            className="md:hidden"
             style={{
                 position: "fixed",
                 bottom: 0,
@@ -97,6 +97,7 @@ const MobileBottomNav = () => {
                 );
             })}
         </nav>
+        </div>
     );
 };
 
