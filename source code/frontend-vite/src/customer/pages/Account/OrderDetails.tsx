@@ -67,9 +67,30 @@ const OrderDetails = () => {
 
       {/* Order Stepper */}
       <section className="border border-brand-gold/15 p-5 bg-white">
-        <p className="font-sans text-xs tracking-widest uppercase text-charcoal/50 font-semibold pb-4">
-          Order Status
-        </p>
+        <div className="flex justify-between items-start pb-4">
+          <p className="font-sans text-xs tracking-widest uppercase text-charcoal/50 font-semibold">
+            Order Status
+          </p>
+          {orders.currentOrder?.orderStatus !== "DELIVERED" && orders.currentOrder?.orderStatus !== "CANCELLED" && (
+            <div className="text-right">
+              <p className="font-sans text-[9px] tracking-widest uppercase text-charcoal/40 font-semibold">Expected Delivery</p>
+              <p className="font-sans text-xs font-semibold text-brand-gold mt-0.5">
+                {orders.currentOrder?.orderStatus === "PENDING" || orders.currentOrder?.orderStatus === "PLACED"
+                  ? "5–7 business days"
+                  : orders.currentOrder?.orderStatus === "CONFIRMED"
+                  ? "4–6 business days"
+                  : orders.currentOrder?.orderStatus === "PACKED"
+                  ? "3–5 business days"
+                  : orders.currentOrder?.orderStatus === "SHIPPED"
+                  ? "1–3 business days"
+                  : "–"}
+              </p>
+            </div>
+          )}
+          {orders.currentOrder?.orderStatus === "DELIVERED" && (
+            <p className="font-sans text-xs font-semibold text-emerald-600">✓ Delivered</p>
+          )}
+        </div>
         <OrderStepper orderStatus={orders.currentOrder?.orderStatus} />
       </section>
 

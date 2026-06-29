@@ -7,6 +7,7 @@ import AddressCard from './AddressCard'
 import AddIcon from '@mui/icons-material/Add';
 import { createOrder } from '../../../Redux Toolkit/Customer/OrderSlice'
 import { useAppDispatch, useAppSelector } from '../../../Redux Toolkit/Store'
+import { formatPrice } from '../../../util/formatPrice'
 
 const paymentGatwayList = [
     { value: "COD", image: "", label: "Cash on Delivery" },
@@ -22,7 +23,7 @@ const AddressPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const dispatch = useAppDispatch();
-    const { user, orders } = useAppSelector(store => store)
+    const { user, orders, cart } = useAppSelector(store => store)
 
     useEffect(() => {
         if (!localStorage.getItem("jwt")) {
@@ -170,6 +171,31 @@ const AddressPage = () => {
                             ))}
                         </RadioGroup>
                     </section>
+
+                    {/* Order summary with product images (#5) */}
+                    {cart.cart?.cartItems && cart.cart.cartItems.length > 0 && (
+                        <section className="border border-brand-gold/20 bg-white px-5 py-4 space-y-3">
+                            <h3 className="font-sans text-xs tracking-[0.2em] uppercase font-bold text-charcoal/60">
+                                Order Summary ({cart.cart.cartItems.length} item{cart.cart.cartItems.length > 1 ? "s" : ""})
+                            </h3>
+                            <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                                {cart.cart.cartItems.map((item: any) => (
+                                    <div key={item.id} className="flex gap-3 items-center">
+                                        <img
+                                            src={item.product?.images?.[0]}
+                                            alt={item.product?.title}
+                                            className="w-12 h-14 object-cover border border-brand-gold/10 shrink-0"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-sans text-xs text-charcoal/80 line-clamp-2 leading-tight">{item.product?.title}</p>
+                                            <p className="font-sans text-[10px] text-charcoal/50 mt-0.5">Qty: {item.quantity}</p>
+                                        </div>
+                                        <p className="font-sans text-xs font-semibold text-matte-black shrink-0">₹{formatPrice(item.sellingPrice)}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
                     {/* Price summary */}
                     <section className="border border-brand-gold/20 bg-white">

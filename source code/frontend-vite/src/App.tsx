@@ -12,13 +12,18 @@ import ScrollToTop from "./hooks/ScrollToTop";
 import { fetchUserProfile } from "./Redux Toolkit/Customer/UserSlice";
 import { createHomeCategories } from "./Redux Toolkit/Customer/Customer/AsyncThunk";
 import { homeCategories } from "./data/homeCategories";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import BackToTop from "./customer/components/BackToTop/BackToTop";
+import MobileBottomNav from "./customer/components/MobileBottomNav/MobileBottomNav";
 
 function App() {
   useSmoothScroll();
   const dispatch = useAppDispatch();
   const { auth, user } = useAppSelector((store) => store);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  const isAdminPath = pathname.startsWith("/admin");
 
   useEffect(() => {
     if (localStorage.getItem("jwt")) {
@@ -46,6 +51,8 @@ function App() {
           <Route path="/admin-login" element={<AdminAuth />} />
           <Route path="*" element={<CustomerRoutes />} />
         </Routes>
+        {!isAdminPath && <BackToTop />}
+        {!isAdminPath && <MobileBottomNav />}
       </div>
     </ThemeProvider>
   );

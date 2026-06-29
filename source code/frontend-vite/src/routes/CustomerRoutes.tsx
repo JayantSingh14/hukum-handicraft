@@ -38,7 +38,7 @@ const CustomerRoutes = () => {
   }, [auth.jwt, dispatch]);
 
   return (
-    <>
+    <div className="pb-16 md:pb-0">
       <Navbar />
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
@@ -47,8 +47,7 @@ const CustomerRoutes = () => {
           initial="hidden"
           animate="visible"
           exit="exit"
-          // will-change hint so the browser promotes this layer ahead of time
-          style={{ willChange: 'opacity' }}
+          style={{ willChange: 'opacity', paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <Routes location={location}>
             <Route path='/' element={<Home />} />
@@ -69,7 +68,7 @@ const CustomerRoutes = () => {
         </motion.div>
       </AnimatePresence>
       <Footer />
-    </>
+    </div>
   );
 };
 

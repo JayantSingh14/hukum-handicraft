@@ -22,7 +22,7 @@ const Cart = () => {
     dispatch(fetchUserCart(localStorage.getItem("jwt") || ""));
   }, [auth.jwt]);
 
-  const handleChange = (e: any) => setCouponCode(e.target.value);
+  const handleChange = (e: any) => setCouponCode(e.target.value.toUpperCase());
 
   const handleApllyCoupon = (apply: string) => {
     const code = apply === "false" ? cart.cart?.couponCode || "" : couponCode;

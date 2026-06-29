@@ -213,7 +213,7 @@ const pageStyles = `
   }
   .hk-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 24px;
     padding: 24px 28px;
   }

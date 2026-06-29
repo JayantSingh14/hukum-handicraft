@@ -42,8 +42,8 @@ const ChatBot = ({ handleClose, productId }: ChatBotProps) => {
 
     return (
         <div style={{
-            width: 380,
-            height: 600,
+            width: "min(380px, calc(100vw - 24px))",
+            height: "min(600px, calc(100vh - 120px))",
             display: "flex",
             flexDirection: "column",
             background: "#fff",

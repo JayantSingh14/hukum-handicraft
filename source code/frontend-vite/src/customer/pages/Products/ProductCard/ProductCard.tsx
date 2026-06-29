@@ -3,13 +3,16 @@ import type { MouseEvent } from "react";
 import "./ProductCard.css";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import { IconButton } from "@mui/material";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import { CircularProgress, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import type { Product } from "../../../../types/productTypes";
 import { useAppDispatch, useAppSelector } from "../../../../Redux Toolkit/Store";
 import { addProductToWishlist } from "../../../../Redux Toolkit/Customer/WishlistSlice";
+import { addItemToCart, fetchUserCart } from "../../../../Redux Toolkit/Customer/CartSlice";
 import { isWishlisted } from "../../../../util/isWishlisted";
 import { STORE_NAME } from "../../../../util/storeConfig";
+import { formatPrice } from "../../../../util/formatPrice";
 
 export type CardVariant = "standard" | "featured" | "list";
 
@@ -22,6 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
     const [currentImage, setCurrentImage] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+    const [addingToCart, setAddingToCart] = useState(false);
     const { wishlist } = useAppSelector((store) => store);
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -36,6 +40,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
     const handleAddWishlist = (e: MouseEvent) => {
         e.stopPropagation();
         if (item.id) dispatch(addProductToWishlist({ productId: item.id }));
+    };
+
+    const handleQuickCart = async (e: MouseEvent) => {
+        e.stopPropagation();
+        const jwt = localStorage.getItem("jwt");
+        if (!jwt) { navigate("/login"); return; }
+        setAddingToCart(true);
+        await dispatch(addItemToCart({ jwt, request: { productId: item.id!, quantity: 1 } }));
+        await dispatch(fetchUserCart(jwt));
+        setAddingToCart(false);
     };
 
     const goToDetail = () => {
@@ -98,8 +112,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                         )}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                        <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: "0.9rem", color: "#1a1612" }}>₹{item.sellingPrice}</span>
-                        <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.78rem", color: "#aaa", textDecoration: "line-through" }}>₹{item.mrpPrice}</span>
+                        <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: "0.9rem", color: "#1a1612" }}>₹{formatPrice(item.sellingPrice)}</span>
+                        <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.78rem", color: "#aaa", textDecoration: "line-through" }}>₹{formatPrice(item.mrpPrice)}</span>
                         {item.giftCategory && (
                             <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.6rem", letterSpacing: "0.15em", color: "#8a7a6a", textTransform: "uppercase", border: "1px solid rgba(200,162,74,0.25)", padding: "2px 8px" }}>
                                 {item.giftCategory.replace(/_/g, " ")}
@@ -107,14 +121,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                         )}
                     </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", padding: "0 16px" }} onClick={e => e.stopPropagation()}>
+                <div style={{ display: "flex", alignItems: "center", padding: "0 16px", gap: 8 }} onClick={e => e.stopPropagation()}>
                     <WishlistBtn />
+                    <IconButton
+                        onClick={handleQuickCart}
+                        disabled={addingToCart}
+                        sx={{
+                            bgcolor: "rgba(250,248,242,0.95)",
+                            color: "#1A1A1A",
+                            border: "1px solid rgba(200,162,74,0.25)",
+                            p: 0.8,
+                            "&:hover": { bgcolor: "#0F0F0F", color: "#C8A24A", borderColor: "#C8A24A" },
+                        }}
+                    >
+                        {addingToCart ? <CircularProgress size={15} sx={{ color: "#C8A24A" }} /> : <ShoppingBagOutlinedIcon sx={{ fontSize: 15 }} />}
+                    </IconButton>
                 </div>
             </div>
         );
     }
 
-    /* ── FEATURED variant (editorial hero) ─────────────── */
+    /* ── FEATURED variant ─────────────────────────────── */
     if (variant === "featured") {
         return (
             <div
@@ -140,12 +167,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                     <span className="discount-badge">{item.discountPercent ?? 0}% OFF</span>
                 )}
 
-                {/* Wishlist top-right */}
-                <div className="absolute top-3 right-3 z-20" onClick={e => e.stopPropagation()}>
+                <div className="absolute top-3 right-3 z-20 flex flex-col gap-2" onClick={e => e.stopPropagation()}>
                     <WishlistBtn dark />
+                    <IconButton
+                        onClick={handleQuickCart}
+                        disabled={addingToCart}
+                        sx={{
+                            bgcolor: "rgba(15,15,15,0.7)",
+                            color: "#FAF8F2",
+                            border: "1px solid rgba(200,162,74,0.25)",
+                            backdropFilter: "blur(4px)",
+                            p: 0.8,
+                            "&:hover": { bgcolor: "#C8A24A", color: "#0F0F0F", borderColor: "#C8A24A" },
+                        }}
+                    >
+                        {addingToCart ? <CircularProgress size={15} sx={{ color: "#C8A24A" }} /> : <ShoppingBagOutlinedIcon sx={{ fontSize: 15 }} />}
+                    </IconButton>
                 </div>
 
-                {/* Image dots */}
                 {isHovered && item.images.length > 1 && (
                     <div className="indicator flex flex-col items-center gap-2">
                         <div className="flex gap-2 bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
@@ -160,7 +199,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                     </div>
                 )}
 
-                {/* Bottom text overlay */}
                 <div className="featured-text-overlay">
                     <p style={{ fontFamily: "Inter, sans-serif", fontSize: "0.6rem", letterSpacing: "0.3em", color: "#C8A24A", textTransform: "uppercase", marginBottom: 6 }}>
                         {STORE_NAME} · Editorial Pick
@@ -169,12 +207,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                         {item.title}
                     </h3>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: "0.88rem", color: "#FAF8F2" }}>₹{item.sellingPrice}</span>
-                        <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.75rem", color: "rgba(250,248,242,0.5)", textDecoration: "line-through" }}>₹{item.mrpPrice}</span>
+                        <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: "0.88rem", color: "#FAF8F2" }}>₹{formatPrice(item.sellingPrice)}</span>
+                        <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.75rem", color: "rgba(250,248,242,0.5)", textDecoration: "line-through" }}>₹{formatPrice(item.mrpPrice)}</span>
                     </div>
                 </div>
 
-                {/* Quick View */}
                 <div className="card-actions">
                     <button className="quick-view-btn" onClick={e => { e.stopPropagation(); goToDetail(); }}>
                         View Details
@@ -208,12 +245,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                     <span className="discount-badge">{item.discountPercent ?? 0}% OFF</span>
                 )}
 
-                {/* Wishlist */}
-                <div className="absolute top-3 right-3 z-20" onClick={e => e.stopPropagation()}>
+                {/* Wishlist + Cart buttons */}
+                <div className="absolute top-3 right-3 z-20 flex flex-col gap-2" onClick={e => e.stopPropagation()}>
                     <WishlistBtn />
+                    <IconButton
+                        onClick={handleQuickCart}
+                        disabled={addingToCart}
+                        sx={{
+                            bgcolor: "rgba(250,248,242,0.95)",
+                            color: "#1A1A1A",
+                            border: "1px solid rgba(200,162,74,0.25)",
+                            backdropFilter: "blur(4px)",
+                            p: 0.8,
+                            "&:hover": { bgcolor: "#0F0F0F", color: "#C8A24A", borderColor: "#C8A24A" },
+                        }}
+                    >
+                        {addingToCart ? <CircularProgress size={15} sx={{ color: "#C8A24A" }} /> : <ShoppingBagOutlinedIcon sx={{ fontSize: 15 }} />}
+                    </IconButton>
                 </div>
 
-                {/* Image dots */}
                 {isHovered && item.images.length > 1 && (
                     <div className="indicator flex flex-col items-center gap-2">
                         <div className="flex gap-2 bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
@@ -228,7 +278,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                     </div>
                 )}
 
-                {/* Quick View */}
                 <div className="card-actions">
                     <button className="quick-view-btn" onClick={e => { e.stopPropagation(); goToDetail(); }}>
                         Quick View
@@ -241,8 +290,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ item, variant = "standard" })
                 <p style={{ fontFamily: "Inter, sans-serif", fontSize: "0.6rem", letterSpacing: "0.25em", color: "#C8A24A", textTransform: "uppercase" }}>{STORE_NAME}</p>
                 <p style={{ fontFamily: "Inter, sans-serif", fontSize: "0.78rem", color: "#1a1612", letterSpacing: "0.04em", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" as any }}>{item.title}</p>
                 <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 10px" }}>
-                    <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: "0.8rem", color: "#1a1612" }}>₹{item.sellingPrice}</span>
-                    <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.72rem", color: "#aaa", textDecoration: "line-through" }}>₹{item.mrpPrice}</span>
+                    <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: "0.8rem", color: "#1a1612" }}>₹{formatPrice(item.sellingPrice)}</span>
+                    <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.72rem", color: "#aaa", textDecoration: "line-through" }}>₹{formatPrice(item.mrpPrice)}</span>
                     {(item.discountPercent ?? 0) > 0 && (
                         <span style={{ fontFamily: "Inter, sans-serif", fontSize: "0.68rem", fontWeight: 600, color: "#C8A24A" }}>{item.discountPercent ?? 0}% OFF</span>
                     )}

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
 import { useAppSelector } from '../../../Redux Toolkit/Store'
 import WishlistProductCard from './WishlistProductCard';
 
@@ -33,15 +34,24 @@ const Wishlist = () => {
                     </div>
                 </section>
             ) : (
-                <div className="h-[60vh] flex justify-center items-center flex-col gap-4">
+                <div className="h-[70vh] flex justify-center items-center flex-col gap-6">
+                    <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg, rgba(200,162,74,0.1), rgba(200,162,74,0.2))", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ fontSize: 30 }}>♡</span>
+                    </div>
                     <div className="text-center space-y-2">
                         <h1 className="font-serif text-2xl font-semibold text-matte-black tracking-wide">
                             Your Wishlist is Empty
                         </h1>
-                        <p className="font-sans text-sm text-charcoal/50 max-w-xs mx-auto">
-                            Add premium handcrafted artisan products you love to your curated list of favorites.
+                        <p className="font-sans text-sm text-charcoal/50 max-w-xs mx-auto leading-relaxed">
+                            Discover handcrafted pieces you love and save them here for later.
                         </p>
                     </div>
+                    <button
+                        onClick={() => navigate("/products")}
+                        className="px-8 py-3 bg-matte-black text-brand-gold font-sans text-xs tracking-[0.2em] uppercase font-semibold hover:bg-brand-gold hover:text-matte-black transition-all duration-300"
+                    >
+                        Explore Collection
+                    </button>
                 </div>
             )}
         </div>
