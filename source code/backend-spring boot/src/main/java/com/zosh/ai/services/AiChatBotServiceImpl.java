@@ -33,7 +33,7 @@ public class AiChatBotServiceImpl implements AiChatBotService {
     @Value("${gemini.api.key}")
     private String GEMINI_API_KEY;
 
-    private static final String GEMINI_MODEL = "gemini-1.5-flash";
+    private static final String GEMINI_MODEL = "gemini-2.0-flash";
     private static final String SYSTEM_INSTRUCTION =
             "You are HUKUM's Artisan Assistant — a helpful, warm, and knowledgeable AI for a premium Indian handicraft luxury e-commerce store. " +
             "Help users explore products, understand their cart, check order history, and discover the craft behind each piece. " +
