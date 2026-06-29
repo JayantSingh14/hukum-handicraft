@@ -27,7 +27,7 @@ import SmilarProduct from "../SimilarProduct/SmilarProduct";
 import ZoomableImage from "./ZoomableImage";
 import { useAppDispatch, useAppSelector } from "../../../../Redux Toolkit/Store";
 import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
-import { fetchProductById, getAllProducts } from "../../../../Redux Toolkit/Customer/ProductSlice";
+import { fetchProductById, getAllProducts, clearProduct } from "../../../../Redux Toolkit/Customer/ProductSlice";
 import { addItemToCart, fetchUserCart } from "../../../../Redux Toolkit/Customer/CartSlice";
 import { addProductToWishlist } from "../../../../Redux Toolkit/Customer/WishlistSlice";
 import ProductReviewCard from "../../Review/ProductReviewCard";
@@ -80,6 +80,9 @@ const ProductDetails = () => {
   const isOutOfStock = product?.quantity === 0;
 
   useEffect(() => {
+    // Clear stale product immediately so the previous product never flashes
+    dispatch(clearProduct());
+    setSelectedImage(0);
     if (productId) {
       dispatch(fetchProductById(Number(productId)));
       dispatch(fetchReviewsByProductId({ productId: Number(productId) }));

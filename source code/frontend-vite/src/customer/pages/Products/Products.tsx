@@ -619,7 +619,7 @@ const Products = () => {
             </div>
 
             {/* Product Grid */}
-            {fetching ? (
+            {fetching && products.products.length === 0 ? (
               <div className="hk-grid">
                 {Array.from({ length: 12 }).map((_, i) => (
                   <div key={i} className="hk-skeleton-card">
