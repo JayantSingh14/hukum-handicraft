@@ -8,6 +8,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 15000, // 15s — shows error instead of spinning forever on cold start
 });
 
 // Attach JWT token to every request automatically
