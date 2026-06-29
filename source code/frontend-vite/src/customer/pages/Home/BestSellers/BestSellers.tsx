@@ -4,10 +4,6 @@ import { motion } from "framer-motion";
 import { Button, IconButton } from "@mui/material";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import Favorite from "@mui/icons-material/Favorite";
-import StarIcon from "@mui/icons-material/Star";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import PublicIcon from "@mui/icons-material/Public";
-import RedeemIcon from "@mui/icons-material/Redeem";
 import { useAppDispatch, useAppSelector } from "../../../../Redux Toolkit/Store";
 import { getAllProducts } from "../../../../Redux Toolkit/Customer/ProductSlice";
 
@@ -192,42 +188,7 @@ const BestSellers = () => {
 
   return (
     <section className="bg-[#F8F5F0] py-16 px-5 lg:px-20 border-y border-[#C8A24A]/10 text-center select-none overflow-hidden">
-      {/* 1. Statistics Strip */}
-      <div className="max-w-7xl mx-auto w-full border-y border-[#C8A46A]/20 py-6 mb-12 text-[#1A1A1A] grid grid-cols-2 lg:grid-cols-4 gap-6 bg-[#FAF8F5]/30 backdrop-blur-sm">
-        <div className="flex flex-col items-center space-y-1">
-          <div className="flex text-[#C8A46A] gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <StarIcon key={i} sx={{ fontSize: "14px" }} />
-            ))}
-          </div>
-          <span className="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">
-            Trusted by 1,000+ Customers
-          </span>
-        </div>
-
-        <div className="flex flex-col items-center space-y-1">
-          <AutoAwesomeIcon sx={{ color: "#C8A46A", fontSize: "15px" }} />
-          <span className="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">
-            500+ Artisan Designs
-          </span>
-        </div>
-
-        <div className="flex flex-col items-center space-y-1">
-          <PublicIcon sx={{ color: "#C8A46A", fontSize: "15px" }} />
-          <span className="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">
-            Handmade Across India
-          </span>
-        </div>
-
-        <div className="flex flex-col items-center space-y-1">
-          <RedeemIcon sx={{ color: "#C8A46A", fontSize: "15px" }} />
-          <span className="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">
-            Bespoke Gifting Available
-          </span>
-        </div>
-      </div>
-
-      {/* 2. Header Block */}
+      {/* Header Block */}
       <div className="max-w-3xl mx-auto space-y-2 mb-12">
         <span className="text-[10px] tracking-[0.4em] font-sans font-bold text-[#C8A46A] uppercase block">
           Most Loved by Our Patrons
