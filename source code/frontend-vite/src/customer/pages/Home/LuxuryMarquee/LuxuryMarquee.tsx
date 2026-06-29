@@ -6,63 +6,62 @@ const items = [
   "LIMITED COLLECTIONS",
   "ROYAL HERITAGE",
   "HANDMADE EXCELLENCE",
-  "CURATED LUXURY"
+  "CURATED LUXURY",
 ];
 
-// Repeat the array to guarantee length is wider than the viewport
 const marqueeItems = [...items, ...items, ...items, ...items];
-// Duplicate for the infinite scroll reset loop
 const duplicatedItems = [...marqueeItems, ...marqueeItems];
 
 const marqueeStyle = `
   @keyframes marquee-scroll {
-    0% {
-      transform: translateX(0%);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
+    0%   { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
   }
-
   .animate-marquee-scroll {
     display: flex;
     width: max-content;
-    animation: marquee-scroll 70s linear infinite;
+    animation: marquee-scroll 60s linear infinite;
   }
-
   .animate-marquee-scroll:hover {
     animation-play-state: paused;
-  }
-
-  .shimmer-gold-text {
-    color: #1A1A1A;
-    font-weight: 600;
-  }
-
-  .gold-glow-star {
-    color: #8C6B2D;
-    text-shadow: 0 0 8px rgba(140, 107, 45, 0.4);
-    display: inline-block;
   }
 `;
 
 export default function LuxuryMarquee() {
   return (
-    <div className="relative w-full overflow-hidden bg-[#F8F5F0] border-y border-[#8C6B2D]/20 py-5 lg:py-6 h-[75px] lg:h-[85px] flex items-center z-20">
+    <div
+      className="relative w-full overflow-hidden flex items-center"
+      style={{
+        background: "#0F0F0F",
+        borderTop: "1px solid rgba(200,162,74,0.4)",
+        borderBottom: "1px solid rgba(200,162,74,0.4)",
+        height: 52,
+      }}
+    >
       <style>{marqueeStyle}</style>
-      
-      {/* Edge gradient fade overlays (High-Performance hardware-accelerated static overlays) */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 lg:w-32 bg-gradient-to-r from-[#F8F5F0] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 lg:w-32 bg-gradient-to-l from-[#F8F5F0] to-transparent z-10 pointer-events-none" />
-      
+
+      {/* Edge fade overlays */}
+      <div className="absolute left-0 top-0 bottom-0 w-12 lg:w-24 pointer-events-none z-10"
+        style={{ background: "linear-gradient(to right, #0F0F0F, transparent)" }} />
+      <div className="absolute right-0 top-0 bottom-0 w-12 lg:w-24 pointer-events-none z-10"
+        style={{ background: "linear-gradient(to left, #0F0F0F, transparent)" }} />
+
       <div className="w-full overflow-hidden">
-        <div className="animate-marquee-scroll flex gap-12 items-center whitespace-nowrap">
+        <div className="animate-marquee-scroll flex gap-10 items-center whitespace-nowrap">
           {duplicatedItems.map((item, index) => (
-            <div key={index} className="flex items-center gap-12">
-              <span className="shimmer-gold-text font-serif text-sm lg:text-base font-medium uppercase tracking-[0.25em] select-none">
+            <div key={index} className="flex items-center gap-10">
+              <span style={{
+                fontFamily: "Inter, sans-serif",
+                fontSize: "0.62rem",
+                letterSpacing: "0.3em",
+                fontWeight: 600,
+                color: "#C8A24A",
+                textTransform: "uppercase",
+                userSelect: "none",
+              }}>
                 {item}
               </span>
-              <span className="gold-glow-star text-lg select-none">✦</span>
+              <span style={{ color: "rgba(200,162,74,0.35)", fontSize: "0.45rem", userSelect: "none" }}>✦</span>
             </div>
           ))}
         </div>
