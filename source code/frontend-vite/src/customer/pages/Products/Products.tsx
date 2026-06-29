@@ -48,35 +48,40 @@ const pageStyles = `
   }
 
   .hk-page-hero {
-    text-align: center;
-    padding: 40px 24px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px 12px;
     border-bottom: 1px solid rgba(200,162,74,0.15);
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .hk-page-eyebrow {
     font-family: 'Inter', sans-serif;
-    font-size: 10px;
+    font-size: 9px;
     letter-spacing: 0.35em;
     text-transform: uppercase;
     color: #C8A24A;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
   }
 
   .hk-page-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-size: clamp(1.4rem, 3vw, 2rem);
     font-weight: 700;
     color: #1a1612;
     letter-spacing: 0.05em;
-    line-height: 1.15;
+    line-height: 1.1;
+    white-space: nowrap;
   }
 
   .hk-page-subtitle {
     font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
+    font-size: 0.7rem;
     color: #8a7a6a;
     letter-spacing: 0.06em;
-    margin-top: 8px;
+    margin-top: 2px;
   }
 
   /* ─── Active Chips ─── */
@@ -230,7 +235,9 @@ const pageStyles = `
       padding: 10px 16px;
     }
     .hk-page-hero {
-      padding: 28px 16px 20px;
+      padding: 10px 16px 10px;
+      flex-direction: column;
+      align-items: flex-start;
     }
     .hk-sidebar {
       display: none;
@@ -238,16 +245,18 @@ const pageStyles = `
   }
 
   .hk-collection-search-bar {
-    max-width: 600px;
-    margin: 24px auto 12px;
+    width: 320px;
+    min-width: 220px;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
+    padding: 9px 16px;
     border: 1px solid rgba(200,162,74,0.3);
     background-color: rgba(200,162,74,0.02);
     cursor: pointer;
     transition: all 0.25s ease;
+    flex-shrink: 0;
   }
   .hk-collection-search-bar:hover {
     border-color: #C8A24A;
@@ -450,19 +459,16 @@ const Products = () => {
       <div className="hk-products-page">
         {/* Page Hero */}
         <div className="hk-page-hero">
-          <p className="hk-page-eyebrow">Hukum Handicraft</p>
-          <h1 className="hk-page-title">{pageTitle}</h1>
-          <p className="hk-page-subtitle">
-            Handcrafted with love · Ethically sourced · Made in India
-          </p>
-        </div>
-
-        {/* Luxury Search Bar Trigger */}
-        <div className="hk-collection-search-bar" onClick={() => setIsSearchOpen(true)}>
-          <span className="hk-search-placeholder-text">
-            Search products, materials, occasions...
-          </span>
-          <SearchIcon sx={{ color: "#C8A24A", fontSize: 18 }} />
+          <div>
+            <p className="hk-page-eyebrow">Hukum Handicraft · Handcrafted with love · Made in India</p>
+            <h1 className="hk-page-title">{pageTitle}</h1>
+          </div>
+          <div className="hk-collection-search-bar" onClick={() => setIsSearchOpen(true)}>
+            <span className="hk-search-placeholder-text">
+              Search products, materials, occasions...
+            </span>
+            <SearchIcon sx={{ color: "#C8A24A", fontSize: 18 }} />
+          </div>
         </div>
 
         {/* Active Filter Chips */}
