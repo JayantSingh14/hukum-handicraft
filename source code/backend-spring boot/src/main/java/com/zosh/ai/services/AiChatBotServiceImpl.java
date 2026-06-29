@@ -44,8 +44,19 @@ public class AiChatBotServiceImpl implements AiChatBotService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
+    private static final String GEMINI_BASE_URL =
+            "https://generativelanguage.googleapis.com/v1beta/models/";
+
     private String geminiUrl() {
-        return "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent?key=" + GEMINI_API_KEY;
+        return GEMINI_BASE_URL + GEMINI_MODEL + ":generateContent";
+    }
+
+    private HttpHeaders buildHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        // x-goog-api-key works for both AIza... and AQ. format keys
+        headers.set("x-goog-api-key", GEMINI_API_KEY);
+        return headers;
     }
 
     private JSONArray createFunctionDeclarations() {
@@ -113,8 +124,6 @@ public class AiChatBotServiceImpl implements AiChatBotService {
     @Override
     public ApiResponse aiChatBot(String prompt, Long productId, Long userId) throws ProductException {
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
             RestTemplate restTemplate = new RestTemplate();
 
             // First call: ask Gemini (with function declarations) to decide how to respond
@@ -131,7 +140,7 @@ public class AiChatBotServiceImpl implements AiChatBotService {
                             .put(new JSONObject()
                                     .put("functionDeclarations", createFunctionDeclarations())));
 
-            HttpEntity<String> request1 = new HttpEntity<>(requestBody.toString(), headers);
+            HttpEntity<String> request1 = new HttpEntity<>(requestBody.toString(), buildHeaders());
             ResponseEntity<String> response1 = restTemplate.postForEntity(geminiUrl(), request1, String.class);
 
             JSONObject json1 = new JSONObject(response1.getBody());
@@ -182,7 +191,7 @@ public class AiChatBotServiceImpl implements AiChatBotService {
                             .put(new JSONObject()
                                     .put("functionDeclarations", createFunctionDeclarations())));
 
-            HttpEntity<String> request2 = new HttpEntity<>(body2.toString(), headers);
+            HttpEntity<String> request2 = new HttpEntity<>(body2.toString(), buildHeaders());
             ResponseEntity<String> response2 = restTemplate.postForEntity(geminiUrl(), request2, String.class);
 
             JSONObject json2 = new JSONObject(response2.getBody());
