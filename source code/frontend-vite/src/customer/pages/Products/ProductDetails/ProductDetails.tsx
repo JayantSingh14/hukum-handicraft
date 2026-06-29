@@ -27,7 +27,7 @@ import SmilarProduct from "../SimilarProduct/SmilarProduct";
 import ZoomableImage from "./ZoomableImage";
 import { useAppDispatch, useAppSelector } from "../../../../Redux Toolkit/Store";
 import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
-import { fetchProductById, getAllProducts, clearProduct } from "../../../../Redux Toolkit/Customer/ProductSlice";
+import { fetchProductById, clearProduct } from "../../../../Redux Toolkit/Customer/ProductSlice";
 import { addItemToCart, fetchUserCart } from "../../../../Redux Toolkit/Customer/CartSlice";
 import { addProductToWishlist } from "../../../../Redux Toolkit/Customer/WishlistSlice";
 import ProductReviewCard from "../../Review/ProductReviewCard";
@@ -35,7 +35,6 @@ import RatingCard from "../../Review/RatingCard";
 import { fetchReviewsByProductId } from "../../../../Redux Toolkit/Customer/ReviewSlice";
 import { createPersonalizedGift } from "../../../../Redux Toolkit/Customer/giftCatalogSlice";
 import { uploadToCloudinary } from "../../../../util/uploadToCloudnary";
-import { mapCategoryIdToGiftCategory } from "../../../../util/giftCategoryMapper";
 import { STORE_NAME } from "../../../../util/storeConfig";
 import { formatPrice } from "../../../../util/formatPrice";
 import { saveRecentlyViewed } from "../../../../util/recentlyViewed";
@@ -87,9 +86,10 @@ const ProductDetails = () => {
       dispatch(fetchProductById(Number(productId)));
       dispatch(fetchReviewsByProductId({ productId: Number(productId) }));
     }
-    const giftCategory = mapCategoryIdToGiftCategory(categoryId);
-    dispatch(getAllProducts({ giftCategory }));
-  }, [productId, categoryId, dispatch]);
+    // Do NOT call getAllProducts here — it overwrites the Products page cache
+    // and causes the back-button to re-fetch the whole list from scratch.
+    // SmilarProduct uses whatever is already in store from the listing page.
+  }, [productId, dispatch]);
 
   // Save to recently viewed
   useEffect(() => {
