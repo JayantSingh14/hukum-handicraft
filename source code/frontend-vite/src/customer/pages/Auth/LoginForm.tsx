@@ -163,6 +163,12 @@ const LoginForm = ({ onGoogleError }: LoginFormProps) => {
                     </button>
                 )}
 
+                {auth.error && (
+                    <p className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2 font-sans">
+                        {auth.error}
+                    </p>
+                )}
+
                 <div className="relative flex py-2 items-center">
                     <div className="flex-grow border-t border-brand-gold/10"></div>
                     <span className="flex-shrink mx-4 text-[10px] tracking-widest text-charcoal/40 uppercase font-sans">Or</span>
