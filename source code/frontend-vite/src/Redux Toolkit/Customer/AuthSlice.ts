@@ -49,7 +49,11 @@ export const signup = createAsyncThunk<AuthResponse, SignupRequest>(
     async (signupRequest, { rejectWithValue }) => {
         console.log("signup ", signupRequest)
         try {
-            const response = await api.post<AuthResponse>(`${API_URL}/signup`, signupRequest);
+            const response = await api.post<AuthResponse>(`${API_URL}/signup`, {
+                email: signupRequest.email,
+                fullName: signupRequest.fullName,
+                otp: signupRequest.otp,
+            });
             signupRequest.navigate(signupRequest.from || "/")
             localStorage.setItem("jwt", response.data.jwt)
             return response.data;
@@ -68,7 +72,10 @@ export const signin = createAsyncThunk<AuthResponse, LoginRequest>(
     'auth/signin',
     async (loginRequest, { rejectWithValue }) => {
         try {
-            const response = await api.post<AuthResponse>(`${API_URL}/signin`, loginRequest);
+            const response = await api.post<AuthResponse>(`${API_URL}/signin`, {
+                email: loginRequest.email,
+                otp: loginRequest.otp,
+            });
             console.log("login successful", response.data);
             localStorage.setItem("jwt", response.data.jwt);
             loginRequest.navigate(loginRequest.from || "/");

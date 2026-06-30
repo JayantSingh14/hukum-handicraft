@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import type { ChangeEvent, KeyboardEvent } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import type { ChangeEvent, KeyboardEvent, ClipboardEvent } from 'react';
 
 interface OTPInputProps {
     length: number;
@@ -9,10 +9,12 @@ interface OTPInputProps {
 
 const OTPInput = ({ length, onChange, error = false }: OTPInputProps) => {
     const [otp, setOtp] = useState<string[]>(Array(length).fill(''));
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
 
     useEffect(() => {
-        onChange(otp.join(''));
-    }, [otp, onChange]);
+        onChangeRef.current(otp.join(''));
+    }, [otp]);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
         const value = e.target.value.replace(/[^0-9]/g, '');
@@ -36,6 +38,17 @@ const OTPInput = ({ length, onChange, error = false }: OTPInputProps) => {
         }
     };
 
+    const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, length);
+        if (!pasted) return;
+        const newOtp = [...otp];
+        for (let i = 0; i < pasted.length; i++) newOtp[i] = pasted[i];
+        setOtp(newOtp);
+        const nextIndex = Math.min(pasted.length, length - 1);
+        document.getElementById(`otp-input-${nextIndex}`)?.focus();
+    };
+
     return (
         <div className='flex gap-3'>
             {otp.map((item, index) => (
@@ -46,6 +59,7 @@ const OTPInput = ({ length, onChange, error = false }: OTPInputProps) => {
                     value={item}
                     onChange={(e) => handleChange(e, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
+                    onPaste={index === 0 ? handlePaste : undefined}
                     maxLength={1}
                     className={`mt-1 block w-full px-3 py-2 border ${error ? 'border-red-500' : 'border-gray-300'
                         } rounded-md shadow-sm focus:outline-none sm:text-sm h-10 w-10 flex justify-center items-center text-center focus:border-brand-gold`}
